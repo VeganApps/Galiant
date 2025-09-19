@@ -26,7 +26,7 @@ export default function CustomBottomNavigation({
         <Ionicons 
           name="home" 
           size={24} 
-          color={activeTab === 'home' ? "#3B82F6" : "#666"} 
+          color={activeTab === 'home' ? "#10B981" : "#666"} 
         />
         {activeTab === 'home' && <View style={styles.navDot} />}
       </TouchableOpacity>
@@ -38,7 +38,7 @@ export default function CustomBottomNavigation({
         <Ionicons 
           name="refresh" 
           size={24} 
-          color={activeTab === 'history' ? "#3B82F6" : "#666"} 
+          color={activeTab === 'history' ? "#10B981" : "#666"} 
         />
         {activeTab === 'history' && <View style={styles.navDot} />}
       </TouchableOpacity>
@@ -48,7 +48,7 @@ export default function CustomBottomNavigation({
         onPress={() => onTabPress('ai-chat')}
       >
         <LinearGradient
-          colors={['#1E40AF', '#3B82F6']}
+          colors={['#059669', '#10B981']}
           style={styles.centralButtonGradient}
         >
           <Ionicons name="chatbubbles" size={36} color="white" />
@@ -62,7 +62,7 @@ export default function CustomBottomNavigation({
         <Ionicons 
           name="bar-chart" 
           size={24} 
-          color={activeTab === 'analytics' ? "#3B82F6" : "#666"} 
+          color={activeTab === 'analytics' ? "#10B981" : "#666"} 
         />
         {activeTab === 'analytics' && <View style={styles.navDot} />}
       </TouchableOpacity>
@@ -74,7 +74,7 @@ export default function CustomBottomNavigation({
         <Ionicons 
           name="headset" 
           size={24} 
-          color={activeTab === 'support' ? "#3B82F6" : "#666"} 
+          color={activeTab === 'support' ? "#10B981" : "#666"} 
         />
         {activeTab === 'support' && <View style={styles.navDot} />}
       </TouchableOpacity>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#10B981',
     marginTop: 2,
   },
   centralButton: {

@@ -61,14 +61,14 @@ export default function AIChatScreen() {
           {messages.length === 0 && (
             <View style={styles.welcomeContainer}>
               <LinearGradient
-                colors={['#F472B6', '#FB7185']}
+                colors={['#10B981', '#059669']}
                 style={styles.welcomeIcon}
               >
                 <Ionicons name="sparkles" size={32} color="white" />
               </LinearGradient>
-              <Text style={styles.welcomeTitle}>Welcome to AI Chat!</Text>
+              <Text style={styles.welcomeTitle}>Welcome to Galiant!</Text>
               <Text style={styles.welcomeText}>
-                Ask me anything about your finances, budgeting, or get help with your financial goals.
+                Hi! I'm Galiant, your personal finance assistant. Ask me anything about your finances, budgeting, or get help with your financial goals.
               </Text>
             </View>
           )}
@@ -82,7 +82,7 @@ export default function AIChatScreen() {
                 {message.role === 'assistant' && (
                   <View style={styles.aiIcon}>
                     <LinearGradient
-                      colors={['#8B5CF6', '#A855F7']}
+                      colors={['#10B981', '#059669']}
                       style={styles.aiIconGradient}
                     >
                       <Ionicons name="sparkles" size={16} color="white" />
@@ -118,7 +118,7 @@ export default function AIChatScreen() {
               <View style={styles.loadingBubble}>
                 <View style={styles.aiIcon}>
                   <LinearGradient
-                    colors={['#8B5CF6', '#A855F7']}
+                    colors={['#10B981', '#059669']}
                     style={styles.aiIconGradient}
                   >
                     <Ionicons name="sparkles" size={16} color="white" />
@@ -139,7 +139,7 @@ export default function AIChatScreen() {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              placeholder="Ask me anything about your finances..."
+              placeholder="Ask Galiant anything about your finances..."
               placeholderTextColor="#9CA3AF"
               value={input}
               onChangeText={setInput}
@@ -152,7 +152,7 @@ export default function AIChatScreen() {
               disabled={!input.trim() || isLoading}
             >
               <LinearGradient
-                colors={input.trim() && !isLoading ? ['#3B82F6', '#1E40AF'] : ['#D1D5DB', '#9CA3AF']}
+                colors={input.trim() && !isLoading ? ['#10B981', '#059669'] : ['#D1D5DB', '#9CA3AF']}
                 style={styles.sendButtonGradient}
               >
                 <Ionicons 
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   userMessageText: {
     color: 'white',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#10B981',
     padding: 12,
     borderRadius: 16,
     borderBottomRightRadius: 4,
