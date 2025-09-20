@@ -14,11 +14,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { 
-  FadeIn, 
-  FadeOut, 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withTiming,
   withRepeat,
   withSequence,
@@ -37,7 +35,7 @@ const promptQuestions = [
   "Analyze my spending patterns",
   "What are the best investment strategies?",
   "Help me plan for retirement",
-  "How to reduce my monthly bills?"
+  "How to reduce my monthly bills?",
 ];
 
 export default function AIChatScreen() {
@@ -48,35 +46,51 @@ export default function AIChatScreen() {
   const [error, setError] = useState<string | null>(null);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  const opacity = useSharedValue(1);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  // fade + float for sample prompt
+  const opacity = useSharedValue(1);
+  const floatingBubbleStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: withRepeat(
+          withSequence(
+            withTiming(-8, { duration: 2000 }),
+            withTiming(0, { duration: 2000 })
+          ),
+          -1,
+          false
+        ),
+      },
+    ],
+  }));
+  const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  const sendMessage = async (contentToSend: string) => {
+    const trimmed = contentToSend.trim();
+    if (!trimmed || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input.trim(),
+      content: trimmed,
       timestamp: Date.now(),
     };
 
-    // Add user message to state
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
     setError(null);
+    Keyboard.dismiss();
 
     try {
       const response = await fetch(generateAPIUrl("/api/watson-chat"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage.content }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to get response");
       }
 
@@ -90,12 +104,22 @@ export default function AIChatScreen() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
-      setError(error instanceof Error ? error.message : "An error occurred");
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 50);
+      });
+    } catch (err) {
+      console.error("Chat error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSendMessage = async () => {
+    await sendMessage(input);
   };
 
   useEffect(() => {
@@ -116,23 +140,23 @@ export default function AIChatScreen() {
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollViewRef.current) {
-      setTimeout(() => {
+      const t = setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
+      return () => clearTimeout(t);
     }
   }, [messages]);
 
-  // Animate prompt questions every 5 seconds
+  // Animate prompt questions every 5 seconds (fade + cycle)
   useEffect(() => {
     const interval = setInterval(() => {
       opacity.value = withSequence(
-        withTiming(0, { duration: 400 }),
-        withTiming(1, { duration: 400 })
+        withTiming(0, { duration: 350 }),
+        withTiming(1, { duration: 350 })
       );
-      
       setTimeout(() => {
         setCurrentPromptIndex((prev) => (prev + 1) % promptQuestions.length);
-      }, 400);
+      }, 350);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -150,6 +174,9 @@ export default function AIChatScreen() {
           <View style={styles.errorContainer}>
             <Ionicons name="alert-circle" size={48} color="#EF4444" />
             <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity onPress={() => setError(null)} style={{ marginTop: 16 }}>
+              <Text style={{ color: "#059669", fontWeight: "600" }}>Try again</Text>
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -167,6 +194,7 @@ export default function AIChatScreen() {
         <KeyboardAvoidingView
           style={styles.keyboardContainer}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}
         >
           {/* Chat Messages */}
           <ScrollView
@@ -201,9 +229,7 @@ export default function AIChatScreen() {
                 <View
                   style={[
                     styles.messageBubble,
-                    message.role === "user"
-                      ? styles.userMessage
-                      : styles.aiMessage,
+                    message.role === "user" ? styles.userMessage : styles.aiMessage,
                   ]}
                 >
                   {message.role === "assistant" && (
@@ -253,35 +279,18 @@ export default function AIChatScreen() {
             )}
           </ScrollView>
 
-          {/* Animated Sample Prompts */}
+          {/* Floating Animated Sample Prompt */}
           {messages.length === 0 && (
-            <View style={styles.samplePromptsContainer}>
+            <View pointerEvents="box-none" style={styles.samplePromptsContainer}>
               <Text style={styles.samplePromptsTitle}>Try asking:</Text>
-              <View style={styles.promptBubbleWrapper}>
-                <TouchableOpacity 
+              <View style={styles.promptBubbleWrapper} pointerEvents="auto">
+                <TouchableOpacity
                   style={styles.promptBubbleContainer}
-                  onPress={() => setInput(promptQuestions[currentPromptIndex])}
-                  activeOpacity={0.8}
+                  onPress={() => sendMessage(promptQuestions[currentPromptIndex])}
+                  activeOpacity={0.85}
                 >
-                  <Animated.View 
-                    style={[
-                      styles.promptBubble,
-                    useAnimatedStyle(() => ({
-                      opacity: 1,
-                      transform: [
-                        {
-                          translateY: withRepeat(
-                            withSequence(
-                              withTiming(-8, { duration: 2000 }),
-                              withTiming(0, { duration: 2000 })
-                            ),
-                            -1,
-                            false
-                          )
-                        }
-                      ]
-                    }))
-                    ]}
+                  <Animated.View
+                    style={[styles.promptBubble, floatingBubbleStyle, fadeStyle]}
                   >
                     <View style={styles.promptContent}>
                       <Text style={styles.promptText}>
@@ -310,6 +319,8 @@ export default function AIChatScreen() {
                 onChangeText={setInput}
                 multiline
                 maxLength={500}
+                onSubmitEditing={handleSendMessage}
+                blurOnSubmit={false}
               />
               <TouchableOpacity
                 style={styles.sendButton}
@@ -338,21 +349,20 @@ export default function AIChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: "relative", // allow absolute children layering
   },
-  safeArea: {
-    flex: 1,
-  },
-  keyboardContainer: {
-    flex: 1,
-  },
+  safeArea: { flex: 1 },
+  keyboardContainer: { flex: 1 },
   chatContainer: {
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
   },
   chatContent: {
-    paddingBottom: 100,
+    paddingBottom: 160, // give room so content doesn't collide with floating prompt
   },
+
+  // Greeting card
   welcomeContainer: {
     backgroundColor: "white",
     borderRadius: 20,
@@ -378,33 +388,24 @@ const styles = StyleSheet.create({
     color: "#111827",
     flex: 1,
   },
-  welcomeContent: {
-    marginBottom: 0,
-  },
+  welcomeContent: { marginBottom: 0 },
   welcomeText: {
     fontSize: 16,
     color: "#4B5563",
     lineHeight: 24,
     marginBottom: 12,
   },
-  messageContainer: {
-    marginVertical: 8,
-  },
+
+  // Messages
+  messageContainer: { marginVertical: 8 },
   messageBubble: {
     flexDirection: "row",
     alignItems: "flex-start",
     maxWidth: "85%",
   },
-  userMessage: {
-    alignSelf: "flex-end",
-  },
-  aiMessage: {
-    alignSelf: "flex-start",
-  },
-  aiIcon: {
-    marginRight: 8,
-    marginTop: 2,
-  },
+  userMessage: { alignSelf: "flex-end" },
+  aiMessage: { alignSelf: "flex-start" },
+  aiIcon: { marginRight: 8, marginTop: 2 },
   aiIconGradient: {
     width: 32,
     height: 32,
@@ -412,13 +413,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  messageContent: {
-    flex: 1,
-  },
-  messageText: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
+  messageContent: { flex: 1 },
+  messageText: { fontSize: 16, lineHeight: 22 },
   userMessageText: {
     color: "white",
     backgroundColor: "#10B981",
@@ -438,10 +434,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  loadingContainer: {
-    marginVertical: 8,
-    alignSelf: "flex-start",
-  },
+
+  // Loading bubble
+  loadingContainer: { marginVertical: 8, alignSelf: "flex-start" },
   loadingBubble: {
     flexDirection: "row",
     alignItems: "center",
@@ -455,79 +450,80 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  typingIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  typingIndicator: { flexDirection: "row", alignItems: "center" },
   typingDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#9CA3AF",
     marginHorizontal: 2,
+    backgroundColor: "#9CA3AF",
     opacity: 0.4,
   },
-  typingDotDelay1: {
-    opacity: 0.6,
-  },
-  typingDotDelay2: {
-    opacity: 0.8,
-  },
+  typingDotDelay1: { opacity: 0.6 },
+  typingDotDelay2: { opacity: 0.8 },
+
+  // Floating sample prompt (absolute)
   samplePromptsContainer: {
+    position: "absolute",
+    bottom: 150, // clearly above the input box, no overlap
+    left: 0,
+    right: 0,
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 8,
     backgroundColor: "transparent",
+    zIndex: 5, // stay below input box
+    elevation: 6,
   },
   samplePromptsTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#6B7280",
     fontWeight: "600",
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: "center",
   },
   promptBubbleWrapper: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginRight: 20,
+    marginRight: 12,
   },
-  promptBubbleContainer: {
-    alignSelf: "flex-end",
-  },
+  promptBubbleContainer: { alignSelf: "flex-end" },
   promptBubble: {
-    maxWidth: "85%",
+    maxWidth: "90%", // allow wider bubble so text fits
+    flexShrink: 1,
     backgroundColor: "#10B981",
-    padding: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 20,
     borderBottomRightRadius: 6,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-    borderWidth: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 1,
     borderColor: "#059669",
+    alignSelf: "flex-end",
   },
-  promptContent: {
-    flex: 1,
-  },
+  promptContent: { flexShrink: 1 },
   promptText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#FFFFFF",
-    lineHeight: 24,
+    lineHeight: 20,
     fontWeight: "700",
     textShadowColor: "rgba(0,0,0,0.3)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
+
+  // Input
   inputContainer: {
     paddingHorizontal: 0,
     paddingVertical: 16,
     backgroundColor: "transparent",
     marginBottom: 72,
+    zIndex: 10, // stays below prompt bubble
   },
-  inputContainerKeyboard: {
-    marginBottom: 0,
-  },
+  inputContainerKeyboard: { marginBottom: 0 },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -553,9 +549,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 4,
   },
-  sendButton: {
-    marginLeft: 8,
-  },
+  sendButton: { marginLeft: 8 },
   sendButtonGradient: {
     width: 36,
     height: 36,
@@ -563,6 +557,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
+  // Error
   errorContainer: {
     flex: 1,
     justifyContent: "center",
