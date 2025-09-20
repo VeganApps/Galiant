@@ -207,7 +207,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-up" size={20} color="#34D399" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>CHF 21,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 21,000</Text>
                   <Text style={styles.financialLabel}>Total Income</Text>
                   <Text style={styles.financialChange}>
                     +12.5% vs last month
@@ -225,7 +225,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-down" size={20} color="#F87171" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>CHF 11,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 11,000</Text>
                   <Text style={styles.financialLabel}>Total Expenses</Text>
                   <Text style={styles.financialChange}>
                     +8.2% vs last month
@@ -243,7 +243,7 @@ export default function HomeScreen() {
                   <Ionicons name="wallet" size={20} color="#3B82F6" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>CHF 10,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 10,000</Text>
                   <Text style={styles.financialLabel}>Net Savings</Text>
                   <Text style={styles.financialChange}>
                     +18.3% vs last month

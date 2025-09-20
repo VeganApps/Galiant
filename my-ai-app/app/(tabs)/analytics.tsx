@@ -376,134 +376,28 @@ export default function AnalyticsScreen() {
             {/* Interactive World Map Visualization */}
             <View style={styles.worldMapContainer}>
               {countrySpendingData.length > 0 ? (
-                <View style={styles.mapGrid}>
-                  {/* Simplified world map representation */}
-                  <View style={styles.mapRow}>
-                    <View style={styles.mapCell} />
-                    {countrySpendingData[4] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[4].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[4])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[4].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <View style={styles.mapCell} />
-                    {countrySpendingData[3] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[3].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[3])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[3].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <View style={styles.mapCell} />
-                  </View>
-
-                  <View style={styles.mapRow}>
-                    <View style={styles.mapCell} />
-                    <View style={styles.mapCell} />
-                    {countrySpendingData[2] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[2].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[2])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[2].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <View style={styles.mapCell} />
-                    <View style={styles.mapCell} />
-                  </View>
-
-                  <View style={styles.mapRow}>
-                    <View style={styles.mapCell} />
-                    {countrySpendingData[1] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[1].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[1])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[1].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    {countrySpendingData[0] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[0].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[0])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[0].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    {countrySpendingData[5] && (
-                      <TouchableOpacity
-                        style={[
-                          styles.mapCell,
-                          styles.countryCell,
-                          {
-                            backgroundColor: `${countrySpendingData[5].color}20`,
-                          },
-                        ]}
-                        onPress={() =>
-                          setSelectedCountry(countrySpendingData[5])
-                        }
-                      >
-                        <Text style={styles.countryFlag}>
-                          {countrySpendingData[5].flag}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <View style={styles.mapCell} />
-                  </View>
-                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.flagRowScroll}
+                  contentContainerStyle={styles.flagRowContent}
+                  decelerationRate="fast"
+                  snapToInterval={76}
+                  snapToAlignment="start"
+                >
+                  {countrySpendingData.map((country) => (
+                    <TouchableOpacity
+                      key={country.country}
+                      style={[
+                        styles.flagBox,
+                        { backgroundColor: `${country.color}20` },
+                      ]}
+                      onPress={() => setSelectedCountry(country)}
+                    >
+                      <Text style={styles.flagBoxFlag}>{country.flag}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               ) : (
                 <View style={styles.loadingContainer}>
                   <Text style={styles.loadingText}>
@@ -517,23 +411,6 @@ export default function AnalyticsScreen() {
                 <Text style={styles.legendTitle}>
                   Tap countries to see details
                 </Text>
-                {countrySpendingData.length > 0 && (
-                  <View style={styles.legendItems}>
-                    {countrySpendingData.slice(0, 3).map((country, index) => (
-                      <View key={index} style={styles.legendItem}>
-                        <View
-                          style={[
-                            styles.legendDot,
-                            { backgroundColor: country.color },
-                          ]}
-                        />
-                        <Text style={styles.legendText}>
-                          {country.flag} {country.country}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
               </View>
             </View>
 
@@ -622,7 +499,7 @@ export default function AnalyticsScreen() {
                           <Text style={styles.countryListName}>
                             {country.country}
                           </Text>
-                          <Text style={styles.countryListTransactions}>
+                          <Text style={styles.countryListTransactions} numberOfLines={1} ellipsizeMode="tail">
                             {country.transactions} transactions
                           </Text>
                         </View>
@@ -640,15 +517,10 @@ export default function AnalyticsScreen() {
                       style={styles.detailsButton}
                       onPress={() => handleShowCountryDetails(country)}
                     >
-                      <LinearGradient
-                        colors={[`${country.color}`, "#16A34A"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.detailsButtonGradient}
-                      >
-                        <Text style={styles.detailsButtonText}>Details</Text>
-                        <Ionicons name="chevron-forward" size={16} color="white" />
-                      </LinearGradient>
+                      <View style={styles.detailsButtonNeutral}>
+                        <Text style={styles.detailsButtonNeutralText}>Details</Text>
+                        <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+                      </View>
                     </TouchableOpacity>
                   </View>
                 ))
@@ -1099,6 +971,25 @@ const styles = StyleSheet.create({
   mapLegend: {
     alignItems: "center",
   },
+  flagRowScroll: {
+    marginBottom: 20,
+  },
+  flagRowContent: {
+    paddingHorizontal: 4,
+  },
+  flagBox: {
+    width: 72,
+    height: 48,
+    marginRight: 8,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  flagBoxFlag: {
+    fontSize: 24,
+  },
   legendTitle: {
     fontSize: 14,
     color: "#6B7280",
@@ -1468,6 +1359,23 @@ const styles = StyleSheet.create({
   detailsButtonText: {
     fontSize: 13,
     color: "white",
+    fontWeight: "700",
+    marginRight: 6,
+  },
+  detailsButtonNeutral: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  detailsButtonNeutralText: {
+    fontSize: 13,
+    color: "#6B7280",
     fontWeight: "700",
     marginRight: 6,
   },
