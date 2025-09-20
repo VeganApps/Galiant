@@ -5,16 +5,19 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { fetchRecentMoneyTableRecords, FinanceTable } from "../utils/supabase";
+import { CACHE_KEYS, cacheService } from "../utils/cache-service";
+import {
+  fetchRecentTransactionDataRecords,
+  TransactionData,
+} from "../utils/supabase";
 import {
   DisplayTransaction,
-  transformMoneyTableToDisplay,
+  transformTransactionDataToDisplay,
 } from "../utils/transaction-transform";
-import { cacheService, CACHE_KEYS } from "../utils/cache-service";
 
 interface TransactionContextType {
   transactions: DisplayTransaction[];
-  rawTransactions: FinanceTable[];
+  rawTransactions: TransactionData[];
   isLoading: boolean;
   isDataLoaded: boolean;
   refreshTransactions: () => Promise<void>;
@@ -34,7 +37,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
   children,
 }) => {
   const [transactions, setTransactions] = useState<DisplayTransaction[]>([]);
-  const [rawTransactions, setRawTransactions] = useState<FinanceTable[]>([]);
+  const [rawTransactions, setRawTransactions] = useState<TransactionData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -45,8 +48,12 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
 
       // Try to load from cache first (unless force refresh)
       if (!forceRefresh) {
-        const cachedRawData = await cacheService.get<FinanceTable[]>(CACHE_KEYS.RAW_TRANSACTIONS);
-        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(CACHE_KEYS.TRANSACTIONS);
+        const cachedRawData = await cacheService.get<TransactionData[]>(
+          CACHE_KEYS.RAW_TRANSACTIONS
+        );
+        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(
+          CACHE_KEYS.TRANSACTIONS
+        );
 
         if (cachedRawData && cachedTransactions) {
           console.log("📱 Using cached data:", cachedRawData.length, "records");
@@ -59,32 +66,41 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
       }
 
       // Fetch from API if no cache or force refresh
-      console.log("🌐 Fetching from API...");
-      const moneyData = await fetchRecentMoneyTableRecords(500); // Increased limit for better caching
-      console.log("✅ API data loaded:", moneyData.length, "records");
+      console.log("🌐 Fetching from transaction_data table...");
+      const transactionData = await fetchRecentTransactionDataRecords(500); // Increased limit for better caching
+      console.log("✅ API data loaded:", transactionData.length, "records");
 
-      if (moneyData.length > 0) {
-        const transformedData = transformMoneyTableToDisplay(moneyData);
-        
+      if (transactionData.length > 0) {
+        const transformedData =
+          transformTransactionDataToDisplay(transactionData);
+
         // Update state
-        setRawTransactions(moneyData);
+        setRawTransactions(transactionData);
         setTransactions(transformedData);
         setIsDataLoaded(true);
 
         // Cache the data
-        await cacheService.set(CACHE_KEYS.RAW_TRANSACTIONS, moneyData);
+        await cacheService.set(CACHE_KEYS.RAW_TRANSACTIONS, transactionData);
         await cacheService.set(CACHE_KEYS.TRANSACTIONS, transformedData);
-        
-        console.log("📊 Data cached and transformed:", transformedData.length, "transactions");
+
+        console.log(
+          "📊 Data cached and transformed:",
+          transformedData.length,
+          "transactions"
+        );
       }
     } catch (error) {
       console.error("❌ Error loading transaction data:", error);
-      
+
       // Try to fall back to cache on error
       try {
-        const cachedRawData = await cacheService.get<FinanceTable[]>(CACHE_KEYS.RAW_TRANSACTIONS);
-        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(CACHE_KEYS.TRANSACTIONS);
-        
+        const cachedRawData = await cacheService.get<TransactionData[]>(
+          CACHE_KEYS.RAW_TRANSACTIONS
+        );
+        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(
+          CACHE_KEYS.TRANSACTIONS
+        );
+
         if (cachedRawData && cachedTransactions) {
           console.log("🔄 Falling back to cached data");
           setRawTransactions(cachedRawData);

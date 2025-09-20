@@ -74,71 +74,15 @@ const createSupabaseClient = () => {
 export const supabase = createSupabaseClient();
 
 // Type definitions for your tables
-export interface Finances {
-  id: number;
-  created_at: string;
-}
-
-export interface FinanceTable {
-  id: number;
+export interface TransactionData {
   money_account_name?: string;
-  mac_curry_id?: string;
-  mac_curry_name?: string;
-  macc_type?: string;
-  produkt?: string;
-  kunden_name?: string;
-  trx_id?: number;
-  trx_type_id?: string;
-  trx_type_short?: string;
-  trx_type_name?: string;
-  buchungs_art_short?: string;
-  buchungs_art_name?: string;
-  val_date?: string;
-  trx_date?: string;
-  direction?: number;
-  trx_curry_name?: string;
-  text_short_creditor?: string;
-  text_creditor?: string;
-  text_short_debitor?: string;
-  text_debitor?: string;
-  point_of_sale_and_location?: string;
-  acquirer_country_name?: string;
-  card_id?: string;
-  cred_acc_text?: string;
-  cred_iban?: string;
-  cred_addr_text?: string;
-  cred_ref_nr?: string;
-  cred_info?: string;
-  customer_id?: string;
-  amount_cent?: number;
-  transaction_exchange_rate?: number;
-  transaction_fee_chf?: string;
-  transaction_fee_cent?: string;
-  amount_chf?: number;
-  total_amount_chf?: number;
-  total_amount_cent?: number;
-  exchange_rate_used?: number;
-  currency_conversion_info?: string;
-  acquirer_country_code?: string;
-  cred_addr_name?: string;
-  cred_addr_street?: string;
-  cred_addr_city?: string;
-  cred_addr_country?: string;
-  latitude?: string;
-  longitude?: string;
-  full_address?: string;
-  category?: string;
-}
-
-export interface TransactionNormalized {
-  money_account_name?: string;
-  mac_curry_id?: string;
+  mac_curry_id?: number;
   mac_curry_name?: string;
   macc_type?: string;
   produkt?: string;
   kunden_name?: string;
   trx_id: number;
-  trx_type_id?: string;
+  trx_type_id?: number;
   trx_type_short?: string;
   trx_type_name?: string;
   buchungs_art_short?: string;
@@ -178,7 +122,10 @@ export interface TransactionNormalized {
   longitude?: string;
   full_address?: string;
   category?: string;
+  icon_url?: string;
+  vendor_for_logo?: string;
 }
+
 
 // Generic data fetching utilities
 export class SupabaseDataService {
@@ -293,40 +240,29 @@ export class SupabaseDataService {
   }
 }
 
-// Specific functions for your finance tables
+// Transaction data functions
 
-// Finances table functions
-export const fetchFinances = () => SupabaseDataService.fetchAll<Finances>('Finances');
-export const fetchFinanceById = (id: number) => SupabaseDataService.fetchById<Finances>('Finances', id);
-
-// Finance_table functions
-export const fetchFinanceTable = () => SupabaseDataService.fetchAll<FinanceTable>('finance_table');
-export const fetchFinanceTableById = (id: number) => SupabaseDataService.fetchById<FinanceTable>('finance_table', id);
-export const createFinanceTableRecord = (data: Partial<FinanceTable>) => SupabaseDataService.insert('finance_table', data);
-export const updateFinanceTableRecord = (id: number, data: Partial<FinanceTable>) => SupabaseDataService.update('finance_table', id, data);
-export const deleteFinanceTableRecord = (id: number) => SupabaseDataService.delete('finance_table', id);
-
-// Transaction_normalized functions
-export const fetchTransactionNormalized = () => SupabaseDataService.fetchAll<TransactionNormalized>('transaction_normalized');
-export const fetchTransactionNormalizedById = (trx_id: number) => 
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) => 
+// Core transaction_data functions
+export const fetchTransactionData = () => SupabaseDataService.fetchAll<TransactionData>('transaction_data');
+export const fetchTransactionDataById = (trx_id: number) => 
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) => 
     query.select('*').eq('trx_id', trx_id).single()
   );
-export const createTransactionNormalizedRecord = (data: Partial<TransactionNormalized>) => SupabaseDataService.insert('transaction_normalized', data);
-export const updateTransactionNormalizedRecord = (trx_id: number, data: Partial<TransactionNormalized>) => 
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) => 
+export const createTransactionDataRecord = (data: Partial<TransactionData>) => SupabaseDataService.insert('transaction_data', data);
+export const updateTransactionDataRecord = (trx_id: number, data: Partial<TransactionData>) => 
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) => 
     query.update(data).eq('trx_id', trx_id).select().single()
   );
-export const deleteTransactionNormalizedRecord = (trx_id: number) => 
-  SupabaseDataService.fetchWithQuery<void>('transaction_normalized', (query) => 
+export const deleteTransactionDataRecord = (trx_id: number) => 
+  SupabaseDataService.fetchWithQuery<void>('transaction_data', (query) => 
     query.delete().eq('trx_id', trx_id)
   );
 
-// Advanced query functions for common use cases
+// Advanced query functions for transaction_data table
 
 // Fetch transactions by date range
 export const fetchTransactionsByDateRange = (startDate: string, endDate: string) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .gte('trx_date', startDate)
@@ -336,7 +272,7 @@ export const fetchTransactionsByDateRange = (startDate: string, endDate: string)
 
 // Fetch transactions by category
 export const fetchTransactionsByCategory = (category: string) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .eq('category', category)
@@ -345,7 +281,7 @@ export const fetchTransactionsByCategory = (category: string) =>
 
 // Fetch transactions by amount range
 export const fetchTransactionsByAmountRange = (minAmount: number, maxAmount: number) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .gte('amount_chf', minAmount)
@@ -355,7 +291,7 @@ export const fetchTransactionsByAmountRange = (minAmount: number, maxAmount: num
 
 // Fetch transactions by direction (income/expense)
 export const fetchTransactionsByDirection = (direction: number) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .eq('direction', direction)
@@ -364,7 +300,7 @@ export const fetchTransactionsByDirection = (direction: number) =>
 
 // Fetch recent transactions (last N records)
 export const fetchRecentTransactions = (limit: number = 50) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .order('trx_date', { ascending: false })
@@ -373,32 +309,25 @@ export const fetchRecentTransactions = (limit: number = 50) =>
 
 // Fetch transactions by customer
 export const fetchTransactionsByCustomer = (customerId: string) =>
-  SupabaseDataService.fetchWithQuery<TransactionNormalized>('transaction_normalized', (query) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .eq('customer_id', customerId)
       .order('trx_date', { ascending: false })
   );
 
-// Money table functions (alias for finance_table)
-export const fetchMoneyTable = () => SupabaseDataService.fetchAll<FinanceTable>('finance_table');
-export const fetchMoneyTableById = (id: number) => SupabaseDataService.fetchById<FinanceTable>('finance_table', id);
-export const createMoneyTableRecord = (data: Partial<FinanceTable>) => SupabaseDataService.insert('finance_table', data);
-export const updateMoneyTableRecord = (id: number, data: Partial<FinanceTable>) => SupabaseDataService.update('finance_table', id, data);
-export const deleteMoneyTableRecord = (id: number) => SupabaseDataService.delete('finance_table', id);
-
-// Fetch recent money table records (last N records) - optimized for history page
-export const fetchRecentMoneyTableRecords = (limit: number = 100) =>
-  SupabaseDataService.fetchWithQuery<FinanceTable>('finance_table', (query) =>
+// Fetch recent transaction data records (last N records) - optimized for history page
+export const fetchRecentTransactionDataRecords = (limit: number = 100) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .order('trx_date', { ascending: false })
       .limit(limit)
   );
 
-// Fetch money table with pagination
-export const fetchMoneyTablePaginated = (page: number = 0, limit: number = 50) =>
-  SupabaseDataService.fetchWithQuery<FinanceTable>('finance_table', (query) =>
+// Fetch transaction data with pagination
+export const fetchTransactionDataPaginated = (page: number = 0, limit: number = 50) =>
+  SupabaseDataService.fetchWithQuery<TransactionData>('transaction_data', (query) =>
     query
       .select('*')
       .order('trx_date', { ascending: false })

@@ -1,4 +1,4 @@
-import { FinanceTable } from './supabase';
+import { TransactionData } from './supabase';
 
 export interface DisplayTransaction {
   id: string;
@@ -13,8 +13,8 @@ export interface DisplayTransaction {
   icon: string;
 }
 
-// Transform money table data to display format
-export const transformMoneyTableToDisplay = (data: FinanceTable[]): DisplayTransaction[] => {
+// Transform transaction data to display format
+export const transformTransactionDataToDisplay = (data: TransactionData[]): DisplayTransaction[] => {
   return data.map((record, index) => {
     // Determine if it's income or expense based on direction
     const isIncome = record.direction === 1;
@@ -39,18 +39,17 @@ export const transformMoneyTableToDisplay = (data: FinanceTable[]): DisplayTrans
     const countryName = record.cred_addr_country || record.acquirer_country_name || '';
     const flag = getCountryFlag(countryName, currency);
     
-    
     // Format date and time
     const transactionDate = record.trx_date ? new Date(record.trx_date) : new Date();
     const date = formatDate(transactionDate);
     const time = formatTime(transactionDate);
     
-    // Get category and icon
+    // Get category and icon - prioritize icon_url from new schema
     const category = record.category || 'Other';
-    const icon = getCategoryIcon(category);
+    const icon = record.icon_url || getCategoryIcon(category);
     
     return {
-      id: record.id?.toString() || index.toString(),
+      id: record.trx_id?.toString() || index.toString(),
       merchant: cleanMerchantName || 'Unknown Transaction',
       category,
       amount,
@@ -61,7 +60,7 @@ export const transformMoneyTableToDisplay = (data: FinanceTable[]): DisplayTrans
       type,
       icon,
     };
-  });
+  })
 };
 
 // Get country flag emoji based on country name, fallback to currency
