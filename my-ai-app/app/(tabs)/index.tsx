@@ -2,7 +2,7 @@ import SGKBLogo from "@/components/sgkb-logo";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
   Dimensions,
   SafeAreaView,
@@ -71,7 +71,6 @@ const goals: Goal[] = [
 ];
 
 export default function HomeScreen() {
-  const [isLoading, setIsLoading] = useState(false);
   const { transactions, isDataLoaded } = useTransactions();
 
   const calculateGoalProgress = (goal: Goal) => {
@@ -720,59 +719,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#111827",
-  },
-  // Test button styles
-  testButtonsContainer: {
-    marginTop: 24,
-    backgroundColor: "#FEF2F2",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#FECACA",
-  },
-  testSectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#DC2626",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  testButtonsGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  testButton: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: "#FECACA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  testButtonDisabled: {
-    opacity: 0.5,
-  },
-  testButtonIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FEF2F2",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  testButtonLabel: {
-    fontSize: 11,
-    color: "#DC2626",
-    fontWeight: "500",
-    textAlign: "center",
   },
 });
