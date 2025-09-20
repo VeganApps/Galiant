@@ -155,34 +155,124 @@ export default function HistoryScreen() {
     "All",
     "Income",
     "Expenses",
+    "Food & Dining",
     "Shopping",
+    "Transportation",
     "Business Services",
+    "Entertainment",
+    "Healthcare",
+    "Travel",
   ];
 
   const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Transportation":
-        return "#3B82F6";
-      case "Food & Dining":
-        return "#F59E0B";
-      case "Groceries":
-        return "#10B981";
-      case "Shopping":
-        return "#10B981";
-      case "Business Services":
-        return "#8B5CF6";
-      case "Travel":
-        return "#8B5CF6";
-      case "Accommodation":
-        return "#EF4444";
-      case "Entertainment":
-        return "#EC4899";
-      case "Utilities":
-        return "#6B7280";
-      case "Income":
-        return "#10B981";
+    switch (category.toLowerCase()) {
+      // Food & Dining
+      case "food & dining":
+      case "restaurant":
+      case "dining":
+        return "#F59E0B"; // Orange
+
+      // Groceries
+      case "groceries":
+      case "grocery":
+        return "#10B981"; // Green
+
+      // Transportation
+      case "transportation":
+      case "transport":
+      case "transit":
+        return "#3B82F6"; // Blue
+
+      // Shopping
+      case "shopping":
+      case "retail":
+        return "#8B5CF6"; // Purple
+
+      // Entertainment
+      case "entertainment":
+      case "entertain":
+        return "#EC4899"; // Pink
+
+      // Bills & Utilities
+      case "bills & utilities":
+      case "bills":
+      case "utilities":
+      case "utility":
+        return "#6B7280"; // Gray
+
+      // Healthcare
+      case "healthcare":
+      case "health":
+      case "medical":
+        return "#EF4444"; // Red
+
+      // Education
+      case "education":
+      case "school":
+      case "learning":
+        return "#06B6D4"; // Cyan
+
+      // Travel
+      case "travel":
+      case "trip":
+      case "vacation":
+        return "#0EA5E9"; // Sky Blue
+
+      // Business Services
+      case "business services":
+      case "business":
+      case "professional":
+        return "#6366F1"; // Indigo
+
+      // Financial Services
+      case "financial services":
+      case "banking":
+      case "finance":
+        return "#059669"; // Emerald
+
+      // Insurance
+      case "insurance":
+      case "coverage":
+        return "#0891B2"; // Teal
+
+      // Taxes
+      case "taxes":
+      case "tax":
+        return "#DC2626"; // Red-600
+
+      // Income
+      case "income":
+      case "salary":
+      case "wage":
+      case "earnings":
+        return "#10B981"; // Green
+
+      // Transfers
+      case "transfers":
+      case "transfer":
+      case "move money":
+        return "#7C3AED"; // Violet
+
+      // ATM & Cash
+      case "atm & cash":
+      case "atm":
+      case "cash":
+      case "withdrawal":
+        return "#F97316"; // Orange-500
+
+      // Fees & Charges
+      case "fees & charges":
+      case "fees":
+      case "charges":
+      case "penalty":
+        return "#EF4444"; // Red
+
+      // Other
+      case "other":
+      case "miscellaneous":
+      case "misc":
       default:
-        return "#6B7280";
+        return "#6B7280"; // Gray
     }
   };
 

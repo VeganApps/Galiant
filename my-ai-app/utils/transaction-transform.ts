@@ -163,34 +163,111 @@ const getCountryFlag = (countryName: string, currency: string): string => {
 // Get category icon
 const getCategoryIcon = (category: string): string => {
   switch (category.toLowerCase()) {
-    case 'transportation':
-    case 'transport':
-      return 'train';
-    case 'groceries':
-    case 'shopping':
-      return 'storefront';
-    case 'travel':
-      return 'airplane';
+    // Food & Dining
     case 'food & dining':
     case 'restaurant':
+    case 'dining':
       return 'restaurant';
-    case 'accommodation':
-      return 'bed';
+    
+    // Groceries
+    case 'groceries':
+    case 'grocery':
+      return 'basket';
+    
+    // Transportation
+    case 'transportation':
+    case 'transport':
+    case 'transit':
+      return 'car';
+    
+    // Shopping
+    case 'shopping':
+    case 'retail':
+      return 'bag';
+    
+    // Entertainment
     case 'entertainment':
+    case 'entertain':
       return 'musical-notes';
+    
+    // Bills & Utilities
+    case 'bills & utilities':
+    case 'bills':
     case 'utilities':
-      return 'phone-portrait';
+    case 'utility':
+      return 'flash';
+    
+    // Healthcare
+    case 'healthcare':
+    case 'health':
+    case 'medical':
+      return 'medical';
+    
+    // Education
+    case 'education':
+    case 'school':
+    case 'learning':
+      return 'school';
+    
+    // Travel
+    case 'travel':
+    case 'trip':
+    case 'vacation':
+      return 'airplane';
+    
+    // Business Services
+    case 'business services':
+    case 'business':
+    case 'professional':
+      return 'briefcase';
+    
+    // Financial Services
+    case 'financial services':
+    case 'banking':
+    case 'finance':
+      return 'card';
+    
+    // Insurance
+    case 'insurance':
+    case 'coverage':
+      return 'shield-checkmark';
+    
+    // Taxes
+    case 'taxes':
+    case 'tax':
+      return 'document-text';
+    
+    // Income
     case 'income':
     case 'salary':
-      return 'card';
-    case 'business services':
-      return 'business';
-    case 'healthcare':
-      return 'medical';
-    case 'education':
-      return 'school';
-    case 'insurance':
-      return 'shield';
+    case 'wage':
+    case 'earnings':
+      return 'trending-up';
+    
+    // Transfers
+    case 'transfers':
+    case 'transfer':
+    case 'move money':
+      return 'swap-horizontal';
+    
+    // ATM & Cash
+    case 'atm & cash':
+    case 'atm':
+    case 'cash':
+    case 'withdrawal':
+      return 'cash';
+    
+    // Fees & Charges
+    case 'fees & charges':
+    case 'fees':
+    case 'charges':
+    case 'penalty':
+      return 'warning';
+    
+    // Other
+    case 'other':
+    case 'miscellaneous':
+    case 'misc':
     default:
       return 'receipt';
   }
