@@ -5,11 +5,12 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { fetchMoneyTable, FinanceTable } from "../utils/supabase";
+import { fetchRecentMoneyTableRecords, FinanceTable } from "../utils/supabase";
 import {
   DisplayTransaction,
   transformMoneyTableToDisplay,
 } from "../utils/transaction-transform";
+import { cacheService, CACHE_KEYS } from "../utils/cache-service";
 
 interface TransactionContextType {
   transactions: DisplayTransaction[];
@@ -17,6 +18,8 @@ interface TransactionContextType {
   isLoading: boolean;
   isDataLoaded: boolean;
   refreshTransactions: () => Promise<void>;
+  clearCache: () => Promise<void>;
+  getCacheInfo: () => Promise<any>;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(
@@ -35,29 +38,82 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
-  const loadMoneyTableData = async () => {
+  const loadMoneyTableData = async (forceRefresh: boolean = false) => {
     setIsLoading(true);
     try {
-      console.log("🚀 Loading money table data...");
-      const moneyData = await fetchMoneyTable();
-      console.log("✅ Money Table Data loaded:", moneyData.length, "records");
+      console.log("🚀 Loading transactions...");
+
+      // Try to load from cache first (unless force refresh)
+      if (!forceRefresh) {
+        const cachedRawData = await cacheService.get<FinanceTable[]>(CACHE_KEYS.RAW_TRANSACTIONS);
+        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(CACHE_KEYS.TRANSACTIONS);
+
+        if (cachedRawData && cachedTransactions) {
+          console.log("📱 Using cached data:", cachedRawData.length, "records");
+          setRawTransactions(cachedRawData);
+          setTransactions(cachedTransactions);
+          setIsDataLoaded(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Fetch from API if no cache or force refresh
+      console.log("🌐 Fetching from API...");
+      const moneyData = await fetchRecentMoneyTableRecords(500); // Increased limit for better caching
+      console.log("✅ API data loaded:", moneyData.length, "records");
 
       if (moneyData.length > 0) {
         const transformedData = transformMoneyTableToDisplay(moneyData);
+        
+        // Update state
         setRawTransactions(moneyData);
         setTransactions(transformedData);
         setIsDataLoaded(true);
-        console.log("📊 Transformed transactions:", transformedData.length);
+
+        // Cache the data
+        await cacheService.set(CACHE_KEYS.RAW_TRANSACTIONS, moneyData);
+        await cacheService.set(CACHE_KEYS.TRANSACTIONS, transformedData);
+        
+        console.log("📊 Data cached and transformed:", transformedData.length, "transactions");
       }
     } catch (error) {
-      console.error("❌ Error loading money table data:", error);
+      console.error("❌ Error loading transaction data:", error);
+      
+      // Try to fall back to cache on error
+      try {
+        const cachedRawData = await cacheService.get<FinanceTable[]>(CACHE_KEYS.RAW_TRANSACTIONS);
+        const cachedTransactions = await cacheService.get<DisplayTransaction[]>(CACHE_KEYS.TRANSACTIONS);
+        
+        if (cachedRawData && cachedTransactions) {
+          console.log("🔄 Falling back to cached data");
+          setRawTransactions(cachedRawData);
+          setTransactions(cachedTransactions);
+          setIsDataLoaded(true);
+        }
+      } catch (cacheError) {
+        console.error("❌ Error loading cached data:", cacheError);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const refreshTransactions = async () => {
-    await loadMoneyTableData();
+    await loadMoneyTableData(true); // Force refresh
+  };
+
+  const clearCache = async () => {
+    await cacheService.clearAll();
+    setTransactions([]);
+    setRawTransactions([]);
+    setIsDataLoaded(false);
+    console.log("🧹 Cache cleared, reloading...");
+    await loadMoneyTableData(true);
+  };
+
+  const getCacheInfo = async () => {
+    return await cacheService.getCacheInfo();
   };
 
   useEffect(() => {
@@ -70,6 +126,8 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
     isLoading,
     isDataLoaded,
     refreshTransactions,
+    clearCache,
+    getCacheInfo,
   };
 
   return (

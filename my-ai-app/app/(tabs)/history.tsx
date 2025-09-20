@@ -332,7 +332,23 @@ export default function HistoryScreen() {
 
           {/* Transactions List */}
           <View style={styles.transactionsContainer}>
-            {!isDataLoaded ? (
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <View style={styles.transactionItem}>
+                  <View style={styles.transactionLeft}>
+                    <View style={[styles.transactionIcon, { backgroundColor: '#F3F4F6' }]}>
+                      <Ionicons name="sync" size={20} color="#10B981" />
+                    </View>
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.merchantName}>
+                        Loading your transactions...
+                      </Text>
+                      <Text style={styles.transactionCategory}>Fetching recent activity</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ) : !isDataLoaded ? (
               <View style={styles.transactionItem}>
                 <View style={styles.transactionLeft}>
                   <View style={styles.transactionIcon}>
@@ -340,9 +356,9 @@ export default function HistoryScreen() {
                   </View>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.merchantName}>
-                      Loading transactions...
+                      Preparing data...
                     </Text>
-                    <Text style={styles.transactionCategory}>Please wait</Text>
+                    <Text style={styles.transactionCategory}>Almost ready</Text>
                   </View>
                 </View>
               </View>
@@ -439,8 +455,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   header: {
-    paddingVertical: 20,
+    paddingTop: 40,
     paddingBottom: 24,
+    paddingHorizontal: 0,
   },
   title: {
     fontSize: 28,
@@ -558,5 +575,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9CA3AF",
     fontWeight: "500",
+  },
+  loadingContainer: {
+    opacity: 0.7,
   },
 });

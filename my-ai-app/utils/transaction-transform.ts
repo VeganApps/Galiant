@@ -39,10 +39,6 @@ export const transformMoneyTableToDisplay = (data: FinanceTable[]): DisplayTrans
     const countryName = record.cred_addr_country || record.acquirer_country_name || '';
     const flag = getCountryFlag(countryName, currency);
     
-    // Debug logging for country detection
-    if (countryName) {
-      console.log(`🏳️ Country detected: "${countryName}" -> ${flag} (currency: ${currency})`);
-    }
     
     // Format date and time
     const transactionDate = record.trx_date ? new Date(record.trx_date) : new Date();

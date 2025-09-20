@@ -390,10 +390,6 @@ export const generateCountrySpendingData = (transactions: FinanceTable[]): Count
     const rawCountryName = transaction.acquirer_country_name || 'Switzerland';
     const countryName = normalizeCountryName(rawCountryName);
     
-    // Debug logging for country detection
-    if (rawCountryName !== 'Switzerland') {
-      console.log(`🌍 Country detected: "${rawCountryName}" -> "${countryName}" (CHF ${transaction.amount_chf})`);
-    }
     
     // Initialize country data if not exists
     if (!countryMap.has(countryName)) {
@@ -444,11 +440,6 @@ export const generateCountrySpendingData = (transactions: FinanceTable[]): Count
     country.percentage = topCountriesTotal > 0 ? parseFloat(((amount / topCountriesTotal) * 100).toFixed(2)) : 0;
   });
 
-  // Debug summary
-  console.log(`📊 Country Analytics Summary: ${countrySpendingData.length} countries, CHF ${topCountriesTotal.toFixed(2)} total`);
-  countrySpendingData.forEach(country => {
-    console.log(`  ${country.flag} ${country.country}: CHF ${country.amount} (${country.percentage}%, ${country.transactions} txns)`);
-  });
 
   return countrySpendingData;
 };

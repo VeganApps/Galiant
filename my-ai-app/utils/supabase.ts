@@ -387,11 +387,20 @@ export const createMoneyTableRecord = (data: Partial<FinanceTable>) => SupabaseD
 export const updateMoneyTableRecord = (id: number, data: Partial<FinanceTable>) => SupabaseDataService.update('finance_table', id, data);
 export const deleteMoneyTableRecord = (id: number) => SupabaseDataService.delete('finance_table', id);
 
-// Fetch recent money table records (last N records)
-export const fetchRecentMoneyTableRecords = (limit: number = 50) =>
+// Fetch recent money table records (last N records) - optimized for history page
+export const fetchRecentMoneyTableRecords = (limit: number = 100) =>
   SupabaseDataService.fetchWithQuery<FinanceTable>('finance_table', (query) =>
     query
       .select('*')
       .order('trx_date', { ascending: false })
       .limit(limit)
+  );
+
+// Fetch money table with pagination
+export const fetchMoneyTablePaginated = (page: number = 0, limit: number = 50) =>
+  SupabaseDataService.fetchWithQuery<FinanceTable>('finance_table', (query) =>
+    query
+      .select('*')
+      .order('trx_date', { ascending: false })
+      .range(page * limit, (page + 1) * limit - 1)
   );
