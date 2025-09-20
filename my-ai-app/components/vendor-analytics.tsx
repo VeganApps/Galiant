@@ -308,6 +308,7 @@ const VendorAnalytics: React.FC<VendorAnalyticsProps> = ({
               <View style={styles.vendorInfo}>
                 <Text style={styles.vendorName} numberOfLines={1}>
                   {vendor.vendor}
+                  {/* TODO: Make this show the correct name (need to adjust the model) */}
                 </Text>
                 <Text style={styles.vendorCategory}>{vendor.category}</Text>
               </View>
