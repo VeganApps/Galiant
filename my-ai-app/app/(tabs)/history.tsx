@@ -6,11 +6,28 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  Image,
   TouchableOpacity,
+  Modal,
   View,
+  Platform,
+  Alert,
+  Clipboard,
 } from "react-native";
-import Animated, { SlideInUp } from "react-native-reanimated";
+import Animated, { 
+  SlideInUp, 
+  FadeIn, 
+  FadeInDown, 
+  FadeInUp,
+  BounceIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
 import { useTransactions } from "../../contexts/TransactionContext";
+import { TransactionData } from "../../utils/supabase";
 
 interface Transaction {
   id: string;
@@ -25,7 +42,7 @@ interface Transaction {
   icon: string;
 }
 
-const transactions: Transaction[] = [
+const staticTransactionData: Transaction[] = [
   {
     id: "1",
     merchant: "Zürich Central Station",
@@ -150,7 +167,102 @@ const transactions: Transaction[] = [
 
 export default function HistoryScreen() {
   const [selectedFilter, setSelectedFilter] = useState("All");
-  const { transactions, isLoading, isDataLoaded } = useTransactions();
+  const { transactions, rawTransactions, isLoading, isDataLoaded } = useTransactions();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionData | null>(null);
+  const [selectedDisplay, setSelectedDisplay] = useState<Transaction | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['financial', 'transaction']));
+
+  // Debug logging
+  console.log('HistoryScreen render:', {
+    isLoading,
+    isDataLoaded,
+    transactionsCount: transactions.length,
+    rawTransactionsCount: rawTransactions.length
+  });
+
+  const openTransactionDetails = (txn: Transaction) => {
+    // Find the corresponding raw transaction data
+    let raw = rawTransactions.find(
+      (r) => (r.trx_id?.toString() || "") === txn.id
+    );
+
+    // If no raw transaction found (using static data), create a mock one for demonstration
+    if (!raw) {
+      raw = {
+        trx_id: parseInt(txn.id),
+        text_short_debitor: txn.merchant,
+        text_debitor: txn.merchant,
+        amount_chf: parseFloat(txn.amount),
+        trx_date: new Date().toISOString(),
+        category: txn.category,
+        trx_curry_name: txn.currency,
+        direction: txn.type === "income" ? 1 : 0,
+        acquirer_country_name: txn.flag === "🇨🇭" ? "Switzerland" : "Unknown",
+        // Add some demo fields to showcase the enhanced modal
+        transaction_fee_chf: (parseFloat(txn.amount) * 0.02).toFixed(2),
+        exchange_rate_used: 1.0,
+        money_account_name: "Primary Account",
+        trx_type_name: txn.type === "income" ? "Credit" : "Debit",
+        point_of_sale_and_location: `${txn.merchant} Location`,
+        cred_iban: "CH93 0076 2011 6238 5295 7",
+        full_address: "Sample Address, Switzerland"
+      } as TransactionData;
+    }
+    
+    console.log('Opening transaction details:', { 
+      displayTransaction: txn, 
+      rawTransaction: raw,
+      availableRawTransactions: rawTransactions.length,
+      isUsingStaticData: !isDataLoaded || transactions.length === 0
+    });
+    
+    setSelectedTransaction(raw);
+    setSelectedDisplay(txn);
+    setIsModalVisible(true);
+  };
+
+  const closeTransactionDetails = () => {
+    setIsModalVisible(false);
+    setSelectedTransaction(null);
+    setSelectedDisplay(null);
+    setExpandedSections(new Set(['financial', 'transaction']));
+  };
+
+  const toggleSection = (sectionKey: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionKey)) {
+      newExpanded.delete(sectionKey);
+    } else {
+      newExpanded.add(sectionKey);
+    }
+    setExpandedSections(newExpanded);
+  };
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await Clipboard.setString(text);
+      Alert.alert('Copied', `${label} copied to clipboard`);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to copy to clipboard');
+    }
+  };
+
+  const getTransactionStatus = (transaction: TransactionData) => {
+    const date = new Date(transaction.trx_date || transaction.val_date || '');
+    const now = new Date();
+    const diffHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    if (diffHours < 1) return { status: 'Processing', color: '#F59E0B', icon: 'time-outline' };
+    if (diffHours < 24) return { status: 'Completed', color: '#10B981', icon: 'checkmark-circle-outline' };
+    return { status: 'Settled', color: '#6B7280', icon: 'shield-checkmark-outline' };
+  };
+
+  const getTransactionTypeColor = (transaction: TransactionData) => {
+    const direction = transaction.direction;
+    if (direction === 1) return '#10B981'; // Income - Green
+    return '#EF4444'; // Expense - Red
+  };
 
   const filters = [
     "All",
@@ -277,11 +389,283 @@ export default function HistoryScreen() {
     }
   };
 
-  const filteredTransactions = transactions.filter((transaction) => {
+  const getDetailIcon = (key: string) => {
+    switch (key.toLowerCase()) {
+      // Amount and financial fields
+      case "amount_cent":
+      case "amount_chf":
+      case "total_amount_chf":
+      case "total_amount_cent":
+        return "cash-outline";
+      case "transaction_fee_chf":
+      case "transaction_fee_cent":
+        return "receipt-outline";
+      case "exchange_rate_used":
+      case "transaction_exchange_rate":
+        return "swap-horizontal-outline";
+      
+      // Date and time fields
+      case "val_date":
+      case "trx_date":
+        return "calendar-outline";
+      
+      // Transaction identification
+      case "trx_id":
+      case "customer_id":
+        return "barcode-outline";
+      case "trx_type_id":
+      case "trx_type_short":
+      case "trx_type_name":
+        return "layers-outline";
+      case "buchungs_art_short":
+      case "buchungs_art_name":
+        return "document-outline";
+      
+      // Account and card information
+      case "money_account_name":
+      case "mac_curry_id":
+      case "mac_curry_name":
+      case "macc_type":
+        return "card-outline";
+      case "produkt":
+      case "kunden_name":
+        return "person-outline";
+      case "card_id":
+        return "card-outline";
+      
+      // Merchant and transaction details
+      case "text_short_debitor":
+      case "text_debitor":
+      case "text_short_creditor":
+      case "text_creditor":
+        return "business-outline";
+      case "point_of_sale_and_location":
+        return "location-outline";
+      case "acquirer_country_name":
+      case "acquirer_country_code":
+        return "flag-outline";
+      
+      // Creditor information
+      case "cred_acc_text":
+      case "cred_iban":
+        return "card-outline";
+      case "cred_addr_text":
+      case "cred_addr_name":
+      case "cred_addr_street":
+      case "cred_addr_city":
+      case "cred_addr_country":
+      case "full_address":
+        return "location-outline";
+      case "cred_ref_nr":
+      case "cred_info":
+        return "document-text-outline";
+      
+      // Currency and conversion
+      case "trx_curry_name":
+        return "globe-outline";
+      case "currency_conversion_info":
+        return "calculator-outline";
+      case "direction":
+        return "arrow-forward-outline";
+      
+      // Location data
+      case "latitude":
+      case "longitude":
+        return "navigate-outline";
+      
+      // Categorization
+      case "category":
+        return "pricetag-outline";
+      case "icon_url":
+      case "vendor_for_logo":
+        return "image-outline";
+      
+      default:
+        return "information-circle-outline";
+    }
+  };
+
+  const formatFieldValue = (key: string, value: any): string => {
+    if (value === null || value === undefined || value === "") return "";
+    
+    switch (key.toLowerCase()) {
+      case "amount_cent":
+      case "total_amount_cent":
+        return `${(Number(value) / 100).toFixed(2)} CHF`;
+      case "amount_chf":
+      case "total_amount_chf":
+        return `${Number(value).toFixed(2)} CHF`;
+      case "transaction_fee_chf":
+        return `${value} CHF`;
+      case "transaction_fee_cent":
+        return `${(Number(value) / 100).toFixed(2)} CHF`;
+      case "exchange_rate_used":
+      case "transaction_exchange_rate":
+        return `${Number(value).toFixed(4)}`;
+      case "val_date":
+      case "trx_date":
+        try {
+          return new Date(value).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } catch {
+          return String(value);
+        }
+      case "direction":
+        return Number(value) === 1 ? "Incoming" : "Outgoing";
+      case "latitude":
+      case "longitude":
+        return `${Number(value).toFixed(6)}°`;
+      case "cred_iban":
+        // Format IBAN with spaces for readability
+        return String(value).replace(/(.{4})/g, '$1 ').trim();
+      default:
+        return String(value);
+    }
+  };
+
+  const getFieldDisplayName = (key: string): string => {
+    const displayNames: { [key: string]: string } = {
+      // Financial fields
+      amount_cent: "Amount (Cents)",
+      amount_chf: "Amount (CHF)",
+      total_amount_chf: "Total Amount (CHF)",
+      total_amount_cent: "Total Amount (Cents)",
+      transaction_fee_chf: "Transaction Fee",
+      transaction_fee_cent: "Transaction Fee (Cents)",
+      exchange_rate_used: "Exchange Rate",
+      transaction_exchange_rate: "Transaction Exchange Rate",
+      currency_conversion_info: "Currency Conversion Info",
+      
+      // Account and product info
+      money_account_name: "Account Name",
+      mac_curry_id: "Account Currency ID",
+      mac_curry_name: "Account Currency",
+      macc_type: "Account Type",
+      produkt: "Product",
+      kunden_name: "Customer Name",
+      
+      // Transaction details
+      trx_id: "Transaction ID",
+      trx_type_id: "Transaction Type ID",
+      trx_type_short: "Transaction Type",
+      trx_type_name: "Transaction Type Name",
+      buchungs_art_short: "Booking Type",
+      buchungs_art_name: "Booking Type Name",
+      val_date: "Value Date",
+      trx_date: "Transaction Date",
+      direction: "Direction",
+      trx_curry_name: "Transaction Currency",
+      
+      // Merchant and location
+      text_short_debitor: "Merchant (Short)",
+      text_debitor: "Merchant",
+      text_short_creditor: "Creditor (Short)",
+      text_creditor: "Creditor",
+      point_of_sale_and_location: "Point of Sale",
+      acquirer_country_name: "Country",
+      acquirer_country_code: "Country Code",
+      
+      // Card and payment
+      card_id: "Card ID",
+      customer_id: "Customer ID",
+      
+      // Creditor information
+      cred_acc_text: "Creditor Account",
+      cred_iban: "IBAN",
+      cred_addr_text: "Creditor Address",
+      cred_addr_name: "Creditor Name",
+      cred_addr_street: "Street Address",
+      cred_addr_city: "City",
+      cred_addr_country: "Country",
+      cred_ref_nr: "Reference Number",
+      cred_info: "Additional Info",
+      
+      // Location
+      latitude: "Latitude",
+      longitude: "Longitude",
+      full_address: "Full Address",
+      
+      // Categorization
+      category: "Category",
+      icon_url: "Icon URL",
+      vendor_for_logo: "Vendor Logo",
+    };
+
+    return displayNames[key] || key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const organizeTransactionData = (transaction: TransactionData) => {
+    const sections = {
+      financial: {
+        title: "Financial Details",
+        icon: "cash-outline",
+        fields: ["amount_chf", "amount_cent", "total_amount_chf", "total_amount_cent", "transaction_fee_chf", "transaction_fee_cent", "exchange_rate_used", "transaction_exchange_rate", "currency_conversion_info"]
+      },
+      transaction: {
+        title: "Transaction Info",
+        icon: "document-text-outline",
+        fields: ["trx_id", "trx_type_short", "trx_type_name", "buchungs_art_short", "buchungs_art_name", "val_date", "trx_date", "direction", "trx_curry_name"]
+      },
+      merchant: {
+        title: "Merchant & Location",
+        icon: "business-outline",
+        fields: ["text_short_debitor", "text_debitor", "text_short_creditor", "text_creditor", "point_of_sale_and_location", "acquirer_country_name", "acquirer_country_code"]
+      },
+      account: {
+        title: "Account & Card",
+        icon: "card-outline",
+        fields: ["money_account_name", "mac_curry_name", "macc_type", "produkt", "card_id", "customer_id", "kunden_name"]
+      },
+      creditor: {
+        title: "Creditor Information",
+        icon: "person-outline",
+        fields: ["cred_acc_text", "cred_iban", "cred_addr_name", "cred_addr_street", "cred_addr_city", "cred_addr_country", "cred_addr_text", "cred_ref_nr", "cred_info"]
+      },
+      location: {
+        title: "Location Data",
+        icon: "location-outline",
+        fields: ["latitude", "longitude", "full_address"]
+      },
+      categorization: {
+        title: "Categorization",
+        icon: "pricetag-outline",
+        fields: ["category", "icon_url", "vendor_for_logo"]
+      }
+    };
+
+    return Object.entries(sections).map(([key, section]) => ({
+      ...section,
+      data: section.fields
+        .map(field => ({
+          key: field,
+          value: transaction[field as keyof TransactionData],
+          displayName: getFieldDisplayName(field),
+          formattedValue: formatFieldValue(field, transaction[field as keyof TransactionData]),
+          icon: getDetailIcon(field)
+        }))
+        .filter(item => item.value !== undefined && item.value !== null && item.value !== "")
+    })).filter(section => section.data.length > 0);
+  };
+
+  // Use real transactions from context, fallback to static data for demo
+  const displayTransactions = isDataLoaded && transactions.length > 0 ? transactions : staticTransactionData;
+  
+  const filteredTransactions = displayTransactions.filter((transaction) => {
     if (selectedFilter === "All") return true;
     if (selectedFilter === "Income") return transaction.type === "income";
     if (selectedFilter === "Expenses") return transaction.type === "expense";
     return transaction.category === selectedFilter;
+  });
+
+  console.log('Filtered transactions:', {
+    displayTransactionsCount: displayTransactions.length,
+    filteredCount: filteredTransactions.length,
+    selectedFilter
   });
 
   return (
@@ -298,8 +682,22 @@ export default function HistoryScreen() {
           entering={SlideInUp.duration(300).springify()}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Transaction History</Text>
-            <Text style={styles.subtitle}>Your financial activity</Text>
+            <View style={styles.headerContent}>
+              <View style={styles.headerText}>
+                <Text style={styles.title}>Transaction History</Text>
+                <Text style={styles.subtitle}>Your financial activity</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.downloadButton}
+                onPress={() => {
+                  // TODO: Implement download functionality
+                  Alert.alert('Download', 'Export transaction data feature coming soon!');
+                }}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="download-outline" size={24} color="#10B981" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Filter Tabs */}
@@ -389,24 +787,36 @@ export default function HistoryScreen() {
               </View>
             ) : (
               filteredTransactions.map((transaction, index) => (
-                <View key={transaction.id} style={styles.transactionItem}>
+                <TouchableOpacity
+                  key={transaction.id}
+                  style={styles.transactionItem}
+                  activeOpacity={0.8}
+                  onPress={() => openTransactionDetails(transaction)}
+                >
                   <View style={styles.transactionLeft}>
-                    <View
-                      style={[
-                        styles.transactionIcon,
-                        {
-                          backgroundColor: `${getCategoryColor(
-                            transaction.category
-                          )}15`,
-                        },
-                      ]}
-                    >
+                  <View
+                    style={[
+                      styles.transactionIcon,
+                      {
+                        backgroundColor: `${getCategoryColor(
+                          transaction.category
+                        )}15`,
+                      },
+                    ]}
+                  >
+                    {(/^https?:\/\//.test(transaction.icon) || transaction.icon.startsWith("data:")) ? (
+                      <Image
+                        source={{ uri: transaction.icon }}
+                        style={styles.transactionImage}
+                      />
+                    ) : (
                       <Ionicons
                         name={transaction.icon as any}
                         size={20}
                         color={getCategoryColor(transaction.category)}
                       />
-                    </View>
+                    )}
+                  </View>
                     <View style={styles.transactionInfo}>
                       <Text style={styles.merchantName}>
                         {transaction.merchant}
@@ -438,12 +848,305 @@ export default function HistoryScreen() {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))
             )}
           </View>
         </Animated.ScrollView>
       </SafeAreaView>
+      {/* Enhanced Transaction Details Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeTransactionDetails}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View 
+            style={styles.modalContainer}
+            entering={SlideInUp.duration(500).springify()}
+          >
+            {/* Enhanced Header with Dynamic Gradient */}
+            <LinearGradient
+              colors={selectedTransaction ? 
+                [getTransactionTypeColor(selectedTransaction), '#059669'] : 
+                ["#10B981", "#059669"]
+              }
+              style={styles.modalHeader}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <View style={styles.modalHeaderContent}>
+                <View style={styles.modalTitleContainer}>
+                  <Animated.View 
+                    style={styles.modalIconContainer}
+                    entering={BounceIn.delay(200)}
+                  >
+                    {selectedDisplay && (
+                      (/^https?:\/\//.test(selectedDisplay.icon) || selectedDisplay.icon.startsWith("data:")) ? (
+                        <Image
+                          source={{ uri: selectedDisplay.icon }}
+                          style={styles.modalTransactionImage}
+                        />
+                      ) : (
+                        <Ionicons
+                          name={selectedDisplay.icon as any}
+                          size={28}
+                          color="white"
+                        />
+                      )
+                    )}
+                  </Animated.View>
+                  <View style={styles.modalTitleTextContainer}>
+                    <Text style={styles.modalTitle} numberOfLines={1}>
+                      {selectedTransaction?.text_short_debitor ||
+                        selectedTransaction?.text_debitor ||
+                        selectedTransaction?.text_short_creditor ||
+                        selectedTransaction?.text_creditor ||
+                        selectedDisplay?.merchant ||
+                        "Transaction Details"}
+                    </Text>
+                    <View style={styles.modalSubtitleRow}>
+                      <Text style={styles.modalSubtitle}>
+                        {selectedDisplay?.category || "Transaction"}
+                      </Text>
+                      {selectedTransaction && (
+                        <View style={styles.modalStatusBadge}>
+                          <Ionicons 
+                            name={getTransactionStatus(selectedTransaction).icon as any} 
+                            size={12} 
+                            color="white" 
+                          />
+                          <Text style={styles.modalStatusText}>
+                            {getTransactionStatus(selectedTransaction).status}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  onPress={closeTransactionDetails}
+                  style={styles.modalCloseButton}
+                >
+                  <Ionicons name="close" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+
+            {/* Enhanced Amount Display with Cards */}
+            {selectedDisplay && selectedTransaction && (
+              <Animated.View 
+                style={styles.modalAmountSection}
+                entering={FadeInDown.delay(300)}
+              >
+                <View style={styles.modalAmountCard}>
+                  <View style={styles.modalAmountContainer}>
+                    <Text style={styles.modalAmountLabel}>Transaction Amount</Text>
+                    <View style={styles.modalAmountRow}>
+                      <Text style={styles.modalFlag}>{selectedDisplay.flag}</Text>
+                      <Text style={[
+                        styles.modalAmount,
+                        selectedDisplay.type === "income" 
+                          ? styles.modalAmountPositive 
+                          : styles.modalAmountNegative
+                      ]}>
+                        {selectedDisplay.type === "expense" ? "-" : "+"}
+                        {selectedDisplay.amount}
+                      </Text>
+                      <Text style={styles.modalCurrency}>{selectedDisplay.currency}</Text>
+                    </View>
+                    <Text style={styles.modalDate}>
+                      {selectedDisplay.date} • {selectedDisplay.time}
+                    </Text>
+                  </View>
+                  
+                  {/* Additional Financial Info */}
+                  <View style={styles.modalFinancialSummary}>
+                    {selectedTransaction.transaction_fee_chf && (
+                      <View style={styles.modalFeeInfo}>
+                        <Text style={styles.modalFeeLabel}>Transaction Fee</Text>
+                        <Text style={styles.modalFeeAmount}>{selectedTransaction.transaction_fee_chf} CHF</Text>
+                      </View>
+                    )}
+                    {selectedTransaction.exchange_rate_used && selectedTransaction.exchange_rate_used !== 1.0 && (
+                      <View style={styles.modalExchangeInfo}>
+                        <Text style={styles.modalExchangeLabel}>Exchange Rate</Text>
+                        <Text style={styles.modalExchangeAmount}>{selectedTransaction.exchange_rate_used}</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </Animated.View>
+            )}
+
+            <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              {/* Enhanced Organized Transaction Details Sections */}
+              {selectedTransaction && organizeTransactionData(selectedTransaction).map((section, sectionIndex) => {
+                const sectionKey = Object.keys({
+                  financial: 'financial',
+                  transaction: 'transaction', 
+                  merchant: 'merchant',
+                  account: 'account',
+                  creditor: 'creditor',
+                  location: 'location',
+                  categorization: 'categorization'
+                }).find(key => section.title.includes(key.split('').map((c, i) => i === 0 ? c.toUpperCase() : c).join(''))) || section.title.toLowerCase().replace(/\s+/g, '');
+
+                const isExpanded = expandedSections.has(sectionKey);
+                
+                return (
+                  <Animated.View 
+                    key={section.title} 
+                    style={styles.modalSection}
+                    entering={FadeIn.delay(400 + sectionIndex * 100)}
+                  >
+                    <TouchableOpacity 
+                      style={styles.modalSectionHeader}
+                      onPress={() => toggleSection(sectionKey)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.modalSectionHeaderLeft}>
+                        <View style={styles.modalSectionIconContainer}>
+                          <Ionicons name={section.icon as any} size={20} color="#10B981" />
+                        </View>
+                        <Text style={styles.modalSectionTitle}>{section.title}</Text>
+                        <View style={styles.modalSectionBadge}>
+                          <Text style={styles.modalSectionBadgeText}>{section.data.length}</Text>
+                        </View>
+                      </View>
+                      <Animated.View 
+                        style={[
+                          styles.modalSectionChevron,
+                          isExpanded && styles.modalSectionChevronExpanded
+                        ]}
+                      >
+                        <Ionicons name="chevron-down" size={20} color="#6B7280" />
+                      </Animated.View>
+                    </TouchableOpacity>
+                    
+                    {isExpanded && (
+                      <Animated.View 
+                        entering={FadeIn.duration(300)}
+                        style={styles.modalSectionContent}
+                      >
+                        {section.data.map((item, itemIndex) => (
+                          <Animated.View 
+                            key={item.key} 
+                            style={styles.detailRow}
+                            entering={FadeInDown.delay(itemIndex * 50)}
+                          >
+                            <View style={styles.detailLeft}>
+                              <View style={styles.detailIconContainer}>
+                                <Ionicons name={item.icon as any} size={16} color="#10B981" />
+                              </View>
+                              <Text style={styles.detailKey}>{item.displayName}</Text>
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => copyToClipboard(item.formattedValue, item.displayName)}
+                              style={styles.detailValueContainer}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[
+                                styles.detailValue,
+                                // Special styling for amounts
+                                (item.key.includes('amount') || item.key.includes('fee')) && styles.detailValueAmount,
+                                // Special styling for IBAN
+                                item.key === 'cred_iban' && styles.detailValueMono
+                              ]}>
+                                {item.formattedValue}
+                              </Text>
+                              <Ionicons name="copy-outline" size={14} color="#9CA3AF" style={styles.copyIcon} />
+                            </TouchableOpacity>
+                          </Animated.View>
+                        ))}
+                        
+                        {/* Special Actions for Location Data */}
+                        {section.title === "Location Data" && 
+                         selectedTransaction?.latitude && 
+                         selectedTransaction?.longitude && (
+                          <Animated.View 
+                            entering={FadeIn.delay(200)}
+                            style={styles.modalLocationActions}
+                          >
+                            <TouchableOpacity 
+                              style={styles.mapLinkButton}
+                              onPress={() => {
+                                const url = `https://maps.google.com/?q=${selectedTransaction.latitude},${selectedTransaction.longitude}`;
+                                console.log('Opening map:', url);
+                                Alert.alert('Map Link', `Would open: ${url}`);
+                              }}
+                            >
+                              <Ionicons name="map" size={16} color="#10B981" />
+                              <Text style={styles.mapLinkText}>View on Map</Text>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity 
+                              style={styles.copyLocationButton}
+                              onPress={() => copyToClipboard(
+                                `${selectedTransaction.latitude}, ${selectedTransaction.longitude}`, 
+                                'Coordinates'
+                              )}
+                            >
+                              <Ionicons name="location" size={16} color="#6B7280" />
+                              <Text style={styles.copyLocationText}>Copy Coordinates</Text>
+                            </TouchableOpacity>
+                          </Animated.View>
+                        )}
+
+                        {/* Special Actions for Financial Data */}
+                        {section.title === "Financial Details" && (
+                          <Animated.View 
+                            entering={FadeIn.delay(200)}
+                            style={styles.modalFinancialActions}
+                          >
+                            {selectedTransaction.trx_id && (
+                              <TouchableOpacity 
+                                style={styles.transactionIdButton}
+                                onPress={() => copyToClipboard(
+                                  selectedTransaction.trx_id.toString(), 
+                                  'Transaction ID'
+                                )}
+                              >
+                                <Ionicons name="barcode" size={16} color="#10B981" />
+                                <Text style={styles.transactionIdText}>Copy Transaction ID</Text>
+                              </TouchableOpacity>
+                            )}
+                          </Animated.View>
+                        )}
+                      </Animated.View>
+                    )}
+                  </Animated.View>
+                );
+              })}
+
+              {/* Enhanced Action Buttons */}
+              <Animated.View 
+                style={styles.modalActions}
+                entering={FadeInUp.delay(600)}
+              >
+                <View style={styles.modalActionButtonsRow}>
+                  <TouchableOpacity 
+                    style={styles.modalSecondaryButton}
+                    onPress={closeTransactionDetails}
+                  >
+                    <Ionicons name="close-circle-outline" size={20} color="#6B7280" />
+                    <Text style={styles.modalSecondaryText}>Close</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.modalPrimaryButton}
+                    onPress={closeTransactionDetails}
+                  >
+                    <Ionicons name="checkmark-circle" size={20} color="white" />
+                    <Text style={styles.modalPrimaryText}>Got it</Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
+            </ScrollView>
+          </Animated.View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -460,9 +1163,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   header: {
-    paddingTop: 40,
+    paddingTop: 70,
     paddingBottom: 24,
     paddingHorizontal: 0,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerText: {
+    flex: 1,
   },
   title: {
     fontSize: 28,
@@ -474,6 +1185,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#6B7280",
     fontWeight: "500",
+  },
+  downloadButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F0FDF4",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#D1FAE5",
   },
   filtersContainer: {
     marginBottom: 24,
@@ -538,6 +1264,11 @@ const styles = StyleSheet.create({
   transactionInfo: {
     flex: 1,
   },
+  transactionImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+  },
   merchantName: {
     fontSize: 16,
     fontWeight: "600",
@@ -583,5 +1314,439 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     opacity: 0.7,
+  },
+  // Enhanced Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "100%",
+    maxHeight: "95%",
+    backgroundColor: "white",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  modalHeader: {
+    paddingTop: 28,
+    paddingBottom: 24,
+    paddingHorizontal: 0,
+  },
+  modalHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+  },
+  modalTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  modalIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  modalTransactionImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+  },
+  modalTitleTextContainer: {
+    flex: 1,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "white",
+    marginBottom: 6,
+  },
+  modalSubtitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  modalSubtitle: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.85)",
+    fontWeight: "600",
+    flex: 1,
+  },
+  modalStatusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  modalStatusText: {
+    fontSize: 12,
+    color: "white",
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+  modalCloseButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  modalAmountSection: {
+    backgroundColor: "#F8FAFC",
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  modalAmountCard: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  modalAmountContainer: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalAmountLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "600",
+    marginBottom: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  modalAmountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  modalFlag: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  modalAmount: {
+    fontSize: 36,
+    fontWeight: "800",
+    marginRight: 8,
+  },
+  modalAmountPositive: {
+    color: "#10B981",
+  },
+  modalAmountNegative: {
+    color: "#EF4444",
+  },
+  modalCurrency: {
+    fontSize: 18,
+    color: "#6B7280",
+    fontWeight: "700",
+  },
+  modalDate: {
+    fontSize: 15,
+    color: "#9CA3AF",
+    fontWeight: "600",
+  },
+  modalFinancialSummary: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+  },
+  modalFeeInfo: {
+    alignItems: "center",
+  },
+  modalFeeLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  modalFeeAmount: {
+    fontSize: 16,
+    color: "#EF4444",
+    fontWeight: "700",
+  },
+  modalExchangeInfo: {
+    alignItems: "center",
+  },
+  modalExchangeLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  modalExchangeAmount: {
+    fontSize: 16,
+    color: "#3B82F6",
+    fontWeight: "700",
+  },
+  modalContent: {
+    flex: 1,
+    paddingTop: 8,
+  },
+  modalSection: {
+    marginHorizontal: 24,
+    marginBottom: 16,
+    backgroundColor: "white",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    overflow: "hidden",
+  },
+  modalSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: "#F8FAFC",
+  },
+  modalSectionHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  modalSectionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F0FDF4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  modalSectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    flex: 1,
+  },
+  modalSectionBadge: {
+    backgroundColor: "#10B981",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  modalSectionBadgeText: {
+    fontSize: 12,
+    color: "white",
+    fontWeight: "700",
+  },
+  modalSectionChevron: {
+    marginLeft: 12,
+  },
+  modalSectionChevronExpanded: {
+    transform: [{ rotate: '180deg' }],
+  },
+  modalSectionContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  detailLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  detailIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F0FDF4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  detailKey: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "600",
+    flex: 1,
+  },
+  detailValueContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: "#F8FAFC",
+  },
+  detailValue: {
+    fontSize: 14,
+    color: "#111827",
+    fontWeight: "700",
+    marginRight: 6,
+  },
+  detailValueAmount: {
+    color: "#10B981",
+  },
+  detailValueMono: {
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    fontSize: 12,
+  },
+  copyIcon: {
+    opacity: 0.6,
+  },
+  modalLocationActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+  },
+  mapLinkButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0FDF4",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flex: 1,
+    marginRight: 8,
+  },
+  mapLinkText: {
+    fontSize: 14,
+    color: "#10B981",
+    fontWeight: "700",
+    marginLeft: 8,
+  },
+  copyLocationButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F4F6",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flex: 1,
+    marginLeft: 8,
+  },
+  copyLocationText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  modalFinancialActions: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+  },
+  transactionIdButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0FDF4",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  transactionIdText: {
+    fontSize: 14,
+    color: "#10B981",
+    fontWeight: "700",
+    marginLeft: 8,
+  },
+  modalActions: {
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+    paddingBottom: 40,
+    backgroundColor: "#F8FAFC",
+  },
+  modalActionButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  modalSecondaryButton: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  modalSecondaryText: {
+    color: "#6B7280",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
+  },
+  modalPrimaryButton: {
+    flex: 1,
+    backgroundColor: "#10B981",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#10B981",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalPrimaryText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
   },
 });
