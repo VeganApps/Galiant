@@ -1438,6 +1438,7 @@ export default function HistoryScreen() {
 
             <ScrollView
               style={styles.exportModalContent}
+              contentContainerStyle={{ paddingBottom: 24 }}
               showsVerticalScrollIndicator={false}
             >
               {/* Date Range Selection */}
@@ -2208,7 +2209,7 @@ const styles = StyleSheet.create({
   // Export Modal Styles
   exportModalContainer: {
     width: "100%",
-    maxHeight: "90%",
+    height: "90%",
     backgroundColor: "white",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
@@ -2264,6 +2265,7 @@ const styles = StyleSheet.create({
   },
   exportModalContent: {
     flex: 1,
+    minHeight: 0,
     paddingHorizontal: 24,
     paddingTop: 16,
   },

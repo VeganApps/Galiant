@@ -14,6 +14,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { 
+  FadeIn, 
+  FadeOut, 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming,
+  withRepeat,
+  withSequence,
+} from "react-native-reanimated";
 
 interface Message {
   id: string;
@@ -22,13 +31,24 @@ interface Message {
   timestamp: number;
 }
 
+const promptQuestions = [
+  "How can I save more money each month?",
+  "Create a budget for my monthly expenses",
+  "Analyze my spending patterns",
+  "What are the best investment strategies?",
+  "Help me plan for retirement",
+  "How to reduce my monthly bills?"
+];
+
 export default function AIChatScreen() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  const opacity = useSharedValue(1);
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -101,6 +121,22 @@ export default function AIChatScreen() {
       }, 100);
     }
   }, [messages]);
+
+  // Animate prompt questions every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      opacity.value = withSequence(
+        withTiming(0, { duration: 400 }),
+        withTiming(1, { duration: 400 })
+      );
+      
+      setTimeout(() => {
+        setCurrentPromptIndex((prev) => (prev + 1) % promptQuestions.length);
+      }, 400);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [opacity]);
 
   if (error) {
     return (
@@ -216,6 +252,47 @@ export default function AIChatScreen() {
               </View>
             )}
           </ScrollView>
+
+          {/* Animated Sample Prompts */}
+          {messages.length === 0 && (
+            <View style={styles.samplePromptsContainer}>
+              <Text style={styles.samplePromptsTitle}>Try asking:</Text>
+              <View style={styles.promptBubbleWrapper}>
+                <TouchableOpacity 
+                  style={styles.promptBubbleContainer}
+                  onPress={() => setInput(promptQuestions[currentPromptIndex])}
+                  activeOpacity={0.8}
+                >
+                  <Animated.View 
+                    style={[
+                      styles.promptBubble,
+                    useAnimatedStyle(() => ({
+                      opacity: 1,
+                      transform: [
+                        {
+                          translateY: withRepeat(
+                            withSequence(
+                              withTiming(-8, { duration: 2000 }),
+                              withTiming(0, { duration: 2000 })
+                            ),
+                            -1,
+                            false
+                          )
+                        }
+                      ]
+                    }))
+                    ]}
+                  >
+                    <View style={styles.promptContent}>
+                      <Text style={styles.promptText}>
+                        {promptQuestions[currentPromptIndex] || "Test Question"}
+                      </Text>
+                    </View>
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
 
           {/* Input Area */}
           <View
@@ -395,6 +472,52 @@ const styles = StyleSheet.create({
   },
   typingDotDelay2: {
     opacity: 0.8,
+  },
+  samplePromptsContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: "transparent",
+  },
+  samplePromptsTitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    fontWeight: "600",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  promptBubbleWrapper: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginRight: 20,
+  },
+  promptBubbleContainer: {
+    alignSelf: "flex-end",
+  },
+  promptBubble: {
+    maxWidth: "85%",
+    backgroundColor: "#10B981",
+    padding: 20,
+    borderRadius: 20,
+    borderBottomRightRadius: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: "#059669",
+  },
+  promptContent: {
+    flex: 1,
+  },
+  promptText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    lineHeight: 24,
+    fontWeight: "700",
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   inputContainer: {
     paddingHorizontal: 0,
