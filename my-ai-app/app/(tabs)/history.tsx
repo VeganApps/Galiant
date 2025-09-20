@@ -55,7 +55,7 @@ const transactions: Transaction[] = [
     merchant: "Copenhagen Airport",
     category: "Travel",
     amount: "89.50",
-    currency: "DKK",
+    currency: "CHF",
     flag: "🇩🇰",
     date: "Yesterday",
     time: "6:45 AM",
@@ -67,7 +67,7 @@ const transactions: Transaction[] = [
     merchant: "Starbucks Vienna",
     category: "Food & Dining",
     amount: "4.20",
-    currency: "EUR",
+    currency: "CHF",
     flag: "🇪🇺",
     date: "Yesterday",
     time: "3:20 PM",
@@ -79,7 +79,7 @@ const transactions: Transaction[] = [
     merchant: "Dubrovnik Hotel",
     category: "Accommodation",
     amount: "120.00",
-    currency: "HRK",
+    currency: "CHF",
     flag: "🇭🇷",
     date: "Sep 28",
     time: "11:30 PM",
@@ -103,7 +103,7 @@ const transactions: Transaction[] = [
     merchant: "Spotify Premium",
     category: "Entertainment",
     amount: "9.99",
-    currency: "EUR",
+    currency: "CHF",
     flag: "🇪🇺",
     date: "Sep 27",
     time: "2:00 PM",
@@ -115,7 +115,7 @@ const transactions: Transaction[] = [
     merchant: "Oslo Metro",
     category: "Transportation",
     amount: "35.00",
-    currency: "NOK",
+    currency: "CHF",
     flag: "🇳🇴",
     date: "Sep 27",
     time: "8:15 AM",
@@ -139,7 +139,7 @@ const transactions: Transaction[] = [
     merchant: "Prague Restaurant",
     category: "Food & Dining",
     amount: "18.50",
-    currency: "CZK",
+    currency: "CHF",
     flag: "🇨🇿",
     date: "Sep 26",
     time: "7:45 PM",
@@ -336,14 +336,21 @@ export default function HistoryScreen() {
               <View style={styles.loadingContainer}>
                 <View style={styles.transactionItem}>
                   <View style={styles.transactionLeft}>
-                    <View style={[styles.transactionIcon, { backgroundColor: '#F3F4F6' }]}>
+                    <View
+                      style={[
+                        styles.transactionIcon,
+                        { backgroundColor: "#F3F4F6" },
+                      ]}
+                    >
                       <Ionicons name="sync" size={20} color="#10B981" />
                     </View>
                     <View style={styles.transactionInfo}>
                       <Text style={styles.merchantName}>
                         Loading your transactions...
                       </Text>
-                      <Text style={styles.transactionCategory}>Fetching recent activity</Text>
+                      <Text style={styles.transactionCategory}>
+                        Fetching recent activity
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -355,9 +362,7 @@ export default function HistoryScreen() {
                     <Ionicons name="hourglass" size={20} color="#6B7280" />
                   </View>
                   <View style={styles.transactionInfo}>
-                    <Text style={styles.merchantName}>
-                      Preparing data...
-                    </Text>
+                    <Text style={styles.merchantName}>Preparing data...</Text>
                     <Text style={styles.transactionCategory}>Almost ready</Text>
                   </View>
                 </View>

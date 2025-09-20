@@ -34,8 +34,8 @@ export const transformMoneyTableToDisplay = (data: FinanceTable[]): DisplayTrans
     // Format amount
     const amount = record.amount_chf ? record.amount_chf.toFixed(2) : '0.00';
     
-    // Get currency and flag
-    const currency = record.trx_curry_name || 'CHF';
+    // Get currency and flag - all amounts are converted to CHF
+    const currency = 'CHF';
     const countryName = record.cred_addr_country || record.acquirer_country_name || '';
     const flag = getCountryFlag(countryName, currency);
     
