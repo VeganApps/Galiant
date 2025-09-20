@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { router, usePathname } from 'expo-router';
 
@@ -23,6 +23,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   const [activeTab, setActiveTab] = useState(getActiveTab());
+
+  // Update active tab when pathname changes
+  useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [pathname]);
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
@@ -56,10 +61,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <View style={styles.content}>
         {children}
       </View>
-      <CustomBottomNavigation 
-        activeTab={activeTab} 
-        onTabPress={handleTabPress} 
-      />
+      <View style={styles.bottomNavContainer}>
+        <CustomBottomNavigation 
+          activeTab={activeTab} 
+          onTabPress={handleTabPress} 
+        />
+      </View>
     </View>
   );
 }
@@ -70,5 +77,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingBottom: 0,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 32,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    alignItems: 'center',
   },
 });

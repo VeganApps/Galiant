@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 interface CustomBottomNavigationProps {
@@ -18,113 +17,129 @@ export default function CustomBottomNavigation({
   onTabPress 
 }: CustomBottomNavigationProps) {
   return (
-    <View style={styles.bottomNav}>
+    <View style={styles.navContainer}>
+      <View style={styles.bottomNav}>
       <TouchableOpacity 
         style={styles.navItem}
         onPress={() => onTabPress('home')}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        activeOpacity={0.7}
       >
-        <Ionicons 
-          name="home" 
-          size={24} 
-          color={activeTab === 'home' ? "#10B981" : "#666"} 
-        />
-        {activeTab === 'home' && <View style={styles.navDot} />}
+        <View style={[styles.iconContainer, activeTab === 'home' && styles.activeIconContainer]}>
+          <Ionicons 
+            name="home" 
+            size={24} 
+            color={activeTab === 'home' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+          />
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.navItem}
         onPress={() => onTabPress('history')}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        activeOpacity={0.7}
       >
-        <Ionicons 
-          name="refresh" 
-          size={24} 
-          color={activeTab === 'history' ? "#10B981" : "#666"} 
-        />
-        {activeTab === 'history' && <View style={styles.navDot} />}
+        <View style={[styles.iconContainer, activeTab === 'history' && styles.activeIconContainer]}>
+          <Ionicons 
+            name="refresh" 
+            size={24} 
+            color={activeTab === 'history' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+          />
+        </View>
       </TouchableOpacity>
-      
+
       <TouchableOpacity 
-        style={styles.centralButton}
+        style={styles.navItem}
         onPress={() => onTabPress('ai-chat')}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        activeOpacity={0.7}
       >
-        <LinearGradient
-          colors={['#059669', '#10B981']}
-          style={styles.centralButtonGradient}
-        >
-          <Ionicons name="chatbubbles" size={36} color="white" />
-        </LinearGradient>
+        <View style={[styles.iconContainer, activeTab === 'ai-chat' && styles.activeIconContainer]}>
+          <Ionicons 
+            name="chatbubbles" 
+            size={24} 
+            color={activeTab === 'ai-chat' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+          />
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.navItem}
         onPress={() => onTabPress('analytics')}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        activeOpacity={0.7}
       >
-        <Ionicons 
-          name="bar-chart" 
-          size={24} 
-          color={activeTab === 'analytics' ? "#10B981" : "#666"} 
-        />
-        {activeTab === 'analytics' && <View style={styles.navDot} />}
+        <View style={[styles.iconContainer, activeTab === 'analytics' && styles.activeIconContainer]}>
+          <Ionicons 
+            name="bar-chart" 
+            size={24} 
+            color={activeTab === 'analytics' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+          />
+        </View>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.navItem}
         onPress={() => onTabPress('support')}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        activeOpacity={0.7}
       >
-        <Ionicons 
-          name="headset" 
-          size={24} 
-          color={activeTab === 'support' ? "#10B981" : "#666"} 
-        />
-        {activeTab === 'support' && <View style={styles.navDot} />}
+        <View style={[styles.iconContainer, activeTab === 'support' && styles.activeIconContainer]}>
+          <Ionicons 
+            name="headset" 
+            size={24} 
+            color={activeTab === 'support' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+          />
+        </View>
       </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  navContainer: {
+    // Outer container remains transparent; inner container floats
+  },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 32,
+    width: '90%',
+    minHeight: 56,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    minHeight: 90,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.08)'
   },
   navItem: {
     alignItems: 'center',
     position: 'relative',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
-  navDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#10B981',
-    marginTop: 2,
-  },
-  centralButton: {
-    marginTop: -35,
-  },
-  centralButtonGradient: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  activeIconContainer: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    borderRadius: 10,
   },
   dollarSign: {
     fontSize: 24,

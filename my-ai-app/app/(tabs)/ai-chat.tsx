@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,20 +20,39 @@ import { fetch as expoFetch } from 'expo/fetch';
 
 export default function AIChatScreen() {
   const [input, setInput] = useState('');
-  const { messages, error, sendMessage, isLoading } = useChat({
+  const [isLoading, setIsLoading] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const { messages, error, sendMessage } = useChat({
     transport: new DefaultChatTransport({
       fetch: expoFetch as unknown as typeof globalThis.fetch,
       api: generateAPIUrl('/api/chat'),
     }),
     onError: error => console.error(error, 'ERROR'),
+    onFinish: () => setIsLoading(false),
   });
 
   const handleSendMessage = () => {
     if (input.trim()) {
+      setIsLoading(true);
       sendMessage({ text: input });
       setInput('');
     }
   };
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   if (error) {
     return (
@@ -66,25 +86,27 @@ export default function AIChatScreen() {
       >
 
         {/* Chat Messages */}
-        <ScrollView 
+        <ScrollView
           style={styles.chatContainer}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.chatContent}
+          keyboardDismissMode="interactive"
+          keyboardShouldPersistTaps="handled"
         >
-          {messages.length === 0 && (
-            <View style={styles.welcomeContainer}>
-              <LinearGradient
-                colors={['#10B981', '#059669']}
-                style={styles.welcomeIcon}
-              >
-                <Ionicons name="sparkles" size={32} color="white" />
-              </LinearGradient>
-              <Text style={styles.welcomeTitle}>Welcome to Galiant!</Text>
+          {/* Always visible greeting */}
+          <View style={styles.welcomeContainer}>
+            <View style={styles.welcomeHeader}>
+              <Text style={styles.welcomeTitle}>Hey there! 👋</Text>
+            </View>
+            <View style={styles.welcomeContent}>
               <Text style={styles.welcomeText}>
-                Hi! I'm Galiant, your personal finance assistant. Ask me anything about your finances, budgeting, or get help with your financial goals.
+                I'm Galiant, your AI finance assistant! 💰✨ I'm here to help you take control of your money and make your financial dreams come true.
+              </Text>
+              <Text style={styles.welcomeText}>
+                Ask me anything about your finances, budgeting tips, or let's create some amazing goals together! What would you like to explore first? 🚀
               </Text>
             </View>
-          )}
+          </View>
           
           {messages.map((message) => (
             <View key={message.id} style={styles.messageContainer}>
@@ -126,7 +148,7 @@ export default function AIChatScreen() {
             </View>
           ))}
           
-          {isLoading && (
+                 {isLoading && (
             <View style={styles.loadingContainer}>
               <View style={styles.loadingBubble}>
                 <View style={styles.aiIcon}>
@@ -148,11 +170,11 @@ export default function AIChatScreen() {
         </ScrollView>
 
         {/* Input Area */}
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, isKeyboardVisible ? styles.inputContainerKeyboard : null]}>
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              placeholder="Ask Galiant anything about your finances..."
+              placeholder="Ask me anything about your finances! 💬"
               placeholderTextColor="#9CA3AF"
               value={input}
               onChangeText={setInput}
@@ -199,38 +221,41 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   chatContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
   welcomeContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-  },
-  welcomeIcon: {
-    width: 80,
-    height: 80,
+    backgroundColor: 'white',
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
+    marginHorizontal: 16,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.1)',
+  },
+  welcomeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#111827',
+    flex: 1,
+  },
+  welcomeContent: {
+    marginBottom: 0,
   },
   welcomeText: {
     fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
+    color: '#4B5563',
     lineHeight: 24,
+    marginBottom: 12,
   },
   messageContainer: {
     marginVertical: 8,
@@ -319,21 +344,30 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   inputContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
     paddingVertical: 16,
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    backgroundColor: 'transparent',
+    marginBottom: 72,
+  },
+  inputContainerKeyboard: {
+    marginBottom: 0,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 32,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 14,
+    width: '90%',
+    alignSelf: 'center',
   },
   textInput: {
     flex: 1,

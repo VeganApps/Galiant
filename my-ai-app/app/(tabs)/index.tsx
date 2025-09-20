@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import {
   Alert,
   Dimensions,
+<<<<<<< HEAD
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -16,6 +17,13 @@ import {
   fetchFinanceTable,
   fetchTransactionNormalized,
 } from "../../utils/supabase";
+=======
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import SGKBLogo from '@/components/sgkb-logo';
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
 
 const { width } = Dimensions.get("window");
 
@@ -162,11 +170,30 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient
+<<<<<<< HEAD
       colors={["#F8FAFC", "#F0FDF4"]}
+=======
+      colors={['#F0FDF4', '#ECFDF5', '#FFFFFF']}
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+      {/* Background pattern */}
+      <View style={styles.bgPattern} pointerEvents="none">
+        <LinearGradient
+          colors={["rgba(16,185,129,0.18)", "rgba(16,185,129,0)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.bgBlobTopRight}
+        />
+        <LinearGradient
+          colors={["rgba(52,211,153,0.16)", "rgba(16,185,129,0)"]}
+          start={{ x: 1, y: 1 }}
+          end={{ x: 0, y: 0 }}
+          style={styles.bgBlobBottomLeft}
+        />
+      </View>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           style={styles.scrollView}
@@ -196,6 +223,7 @@ export default function HomeScreen() {
               <Text style={styles.balancePeriod}>from last month</Text>
             </View>
           </View>
+<<<<<<< HEAD
 
           {/* Quick Stats */}
           <View style={styles.statsContainer}>
@@ -214,6 +242,56 @@ export default function HomeScreen() {
               <Text style={styles.statLabel}>Savings</Text>
             </View>
           </View>
+=======
+          <View style={styles.sgkbSection}>
+            <SGKBLogo size={16} />
+            <Text style={styles.sgkbText}>St. Galler Kantonalbank</Text>
+          </View>
+        </View>
+
+        {/* Financial Overview */}
+        <View style={styles.financialContainer}>
+          <View style={styles.financialHeader}>
+            <Text style={styles.financialTitle}>Financial Overview</Text>
+            <Text style={styles.financialPeriod}>This Month</Text>
+          </View>
+          
+          <View style={styles.financialGrid}>
+            <View style={styles.financialCard}>
+              <View style={styles.financialIconContainer}>
+                <Ionicons name="trending-up" size={20} color="#34D399" />
+              </View>
+              <View style={styles.financialContent}>
+                <Text style={styles.financialValue}>$21,000</Text>
+                <Text style={styles.financialLabel}>Total Income</Text>
+                <Text style={styles.financialChange}>+12.5% vs last month</Text>
+              </View>
+            </View>
+            
+            <View style={styles.financialCard}>
+              <View style={[styles.financialIconContainer, { backgroundColor: 'rgba(248, 113, 113, 0.2)' }]}>
+                <Ionicons name="trending-down" size={20} color="#F87171" />
+              </View>
+              <View style={styles.financialContent}>
+                <Text style={styles.financialValue}>$11,000</Text>
+                <Text style={styles.financialLabel}>Total Expenses</Text>
+                <Text style={styles.financialChange}>+8.2% vs last month</Text>
+              </View>
+            </View>
+            
+            <View style={styles.financialCard}>
+              <View style={[styles.financialIconContainer, { backgroundColor: 'rgba(59, 130, 246, 0.2)' }]}>
+                <Ionicons name="wallet" size={20} color="#3B82F6" />
+              </View>
+              <View style={styles.financialContent}>
+                <Text style={styles.financialValue}>$10,000</Text>
+                <Text style={styles.financialLabel}>Net Savings</Text>
+                <Text style={styles.financialChange}>+18.3% vs last month</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
 
           {/* Quick Actions */}
           <View style={styles.actionsSection}>
@@ -287,6 +365,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
+<<<<<<< HEAD
           {/* Goals Section */}
           <View style={styles.goalsSection}>
             <View style={styles.sectionHeader}>
@@ -381,6 +460,15 @@ export default function HomeScreen() {
                 );
               })}
             </ScrollView>
+=======
+        {/* Recent Transactions */}
+        <View style={styles.transactionsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent</Text>
+            <TouchableOpacity onPress={() => router.push('/history')}>
+              <Text style={styles.seeAllText}>See all</Text>
+            </TouchableOpacity>
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
           </View>
 
           {/* Recent Transactions */}
@@ -434,12 +522,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  bgPattern: {
+    ...StyleSheet.absoluteFillObject as any,
+    zIndex: 0,
+  },
+  bgBlobTopRight: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    right: -80,
+    top: -60,
+    transform: [{ rotate: '20deg' }],
+  },
+  bgBlobBottomLeft: {
+    position: 'absolute',
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    left: -100,
+    bottom: 140,
+    transform: [{ rotate: '-15deg' }],
+  },
   safeArea: {
     flex: 1,
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 24,
   },
   header: {
     flexDirection: "row",
@@ -447,6 +556,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingTop: 20,
     paddingBottom: 32,
+    paddingHorizontal: 24,
   },
   profileSection: {
     flex: 1,
@@ -466,16 +576,28 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
+<<<<<<< HEAD
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
+=======
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     shadowRadius: 8,
     elevation: 2,
   },
   balanceSection: {
+<<<<<<< HEAD
     backgroundColor: "white",
     borderRadius: 24,
     padding: 32,
@@ -483,6 +605,18 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
+=======
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 32,
+    marginBottom: 32,
+    marginHorizontal: 24,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     shadowRadius: 12,
     elevation: 3,
   },
@@ -504,20 +638,47 @@ const styles = StyleSheet.create({
   },
   balanceChange: {
     fontSize: 14,
+<<<<<<< HEAD
     color: "#10B981",
     fontWeight: "600",
+=======
+    color: '#34D399',
+    fontWeight: '600',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     marginRight: 8,
   },
   balancePeriod: {
     fontSize: 14,
+<<<<<<< HEAD
     color: "#9CA3AF",
   },
   statsContainer: {
     flexDirection: "row",
     backgroundColor: "white",
+=======
+    color: '#6B7280',
+  },
+  sgkbSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  sgkbText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  financialContainer: {
+    backgroundColor: '#FFFFFF',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     borderRadius: 20,
-    paddingVertical: 24,
+    padding: 24,
     marginBottom: 32,
+<<<<<<< HEAD
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -533,19 +694,82 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
     marginBottom: 4,
+=======
+    marginHorizontal: 24,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  statLabel: {
+  financialHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  financialTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
+  },
+  financialPeriod: {
     fontSize: 14,
     color: "#6B7280",
     fontWeight: "500",
   },
-  statDivider: {
-    width: 1,
+  financialGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  financialCard: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  financialIconContainer: {
+    width: 40,
     height: 40,
+<<<<<<< HEAD
     backgroundColor: "#E5E7EB",
+=======
+    borderRadius: 12,
+    backgroundColor: 'rgba(52, 211, 153, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  financialContent: {
+    alignItems: 'center',
+  },
+  financialValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  financialLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '500',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  financialChange: {
+    fontSize: 11,
+    color: '#34D399',
+    fontWeight: '600',
+    textAlign: 'center',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
   },
   actionsSection: {
     marginBottom: 32,
+    paddingHorizontal: 24,
   },
   sectionTitle: {
     fontSize: 20,
@@ -559,6 +783,7 @@ const styles = StyleSheet.create({
   },
   actionItem: {
     flex: 1,
+<<<<<<< HEAD
     alignItems: "center",
     backgroundColor: "white",
     borderRadius: 16,
@@ -567,6 +792,18 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
+=======
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 20,
+    marginHorizontal: 4,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     shadowRadius: 8,
     elevation: 2,
   },
@@ -574,10 +811,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
+<<<<<<< HEAD
     backgroundColor: "#F0FDF4",
     justifyContent: "center",
     alignItems: "center",
+=======
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     marginBottom: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
   },
   actionLabel: {
     fontSize: 12,
@@ -587,12 +832,14 @@ const styles = StyleSheet.create({
   },
   transactionsSection: {
     marginBottom: 32,
+    paddingHorizontal: 24,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+    paddingHorizontal: 24,
   },
   seeAllText: {
     fontSize: 16,
@@ -600,6 +847,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   transactionsList: {
+<<<<<<< HEAD
     backgroundColor: "white",
     borderRadius: 20,
     paddingVertical: 8,
@@ -607,6 +855,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
+=======
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingVertical: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     elevation: 2,
   },
   transactionItem: {
@@ -619,10 +878,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
+<<<<<<< HEAD
     backgroundColor: "#F9FAFB",
     justifyContent: "center",
     alignItems: "center",
+=======
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     marginRight: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
   },
   transactionInfo: {
     flex: 1,
@@ -635,6 +902,7 @@ const styles = StyleSheet.create({
   },
   transactionDate: {
     fontSize: 14,
+<<<<<<< HEAD
     color: "#9CA3AF",
   },
   transactionAmount: {
@@ -646,6 +914,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#10B981",
+=======
+    color: '#6B7280',
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#F87171',
+  },
+  transactionAmountPositive: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#34D399',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
   },
   goalsSection: {
     marginBottom: 32,
@@ -654,20 +935,35 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   goalsContainer: {
-    paddingRight: 24,
+    paddingLeft: 24,
+    paddingRight: 0,
   },
   goalCard: {
     width: 280,
+<<<<<<< HEAD
     backgroundColor: "white",
+=======
+    backgroundColor: '#FFFFFF',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     borderRadius: 16,
     padding: 20,
     marginRight: 16,
     borderLeftWidth: 4,
+<<<<<<< HEAD
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+=======
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
   },
   goalHeader: {
     flexDirection: "row",
@@ -701,7 +997,11 @@ const styles = StyleSheet.create({
   },
   goalProgressBar: {
     height: 8,
+<<<<<<< HEAD
     backgroundColor: "#F3F4F6",
+=======
+    backgroundColor: '#E5E7EB',
+>>>>>>> f2a3a4b143440c060f10db666bfc0aaf90259aa5
     borderRadius: 4,
     marginBottom: 8,
   },
