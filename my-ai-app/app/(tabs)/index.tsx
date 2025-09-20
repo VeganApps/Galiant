@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import SGKBLogo from '@/components/sgkb-logo';
 
 const { width } = Dimensions.get('window');
 
@@ -120,6 +121,10 @@ export default function HomeScreen() {
             <Text style={styles.balanceChange}>+2.4%</Text>
             <Text style={styles.balancePeriod}>from last month</Text>
           </View>
+            <View style={styles.sgkbSection}>
+              <SGKBLogo size={16} />
+              <Text style={styles.sgkbText}>St. Galler Kantonalbank</Text>
+            </View>
         </View>
 
         {/* Quick Stats */}
@@ -255,7 +260,7 @@ export default function HomeScreen() {
         <View style={styles.transactionsSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/history')}>
               <Text style={styles.seeAllText}>See all</Text>
             </TouchableOpacity>
           </View>
@@ -376,11 +381,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 8,
   },
-  balancePeriod: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  statsContainer: {
+    balancePeriod: {
+      fontSize: 14,
+      color: '#9CA3AF',
+    },
+    sgkbSection: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 16,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: '#F3F4F6',
+    },
+    sgkbText: {
+      fontSize: 14,
+      color: '#6B7280',
+      fontWeight: '500',
+      marginLeft: 8,
+    },
+    statsContainer: {
     flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 20,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { router, usePathname } from 'expo-router';
 
@@ -23,6 +23,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
   };
 
   const [activeTab, setActiveTab] = useState(getActiveTab());
+
+  // Update active tab when pathname changes
+  useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [pathname]);
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
