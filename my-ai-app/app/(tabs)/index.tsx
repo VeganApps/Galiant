@@ -10,13 +10,97 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
+interface Goal {
+  id: string;
+  title: string;
+  icon: string;
+  targetAmount: number;
+  currentAmount: number;
+  monthlySavings: number;
+  priority: 'high' | 'medium' | 'low';
+  color: string;
+}
+
+const goals: Goal[] = [
+  {
+    id: '1',
+    title: 'Emergency Fund',
+    icon: 'shield-checkmark',
+    targetAmount: 10000,
+    currentAmount: 8200,
+    monthlySavings: 500,
+    priority: 'high',
+    color: '#10B981',
+  },
+  {
+    id: '2',
+    title: 'Vacation to Japan',
+    icon: 'airplane',
+    targetAmount: 5000,
+    currentAmount: 2100,
+    monthlySavings: 800,
+    priority: 'medium',
+    color: '#3B82F6',
+  },
+  {
+    id: '3',
+    title: 'New MacBook Pro',
+    icon: 'laptop',
+    targetAmount: 2500,
+    currentAmount: 1200,
+    monthlySavings: 400,
+    priority: 'low',
+    color: '#8B5CF6',
+  },
+  {
+    id: '4',
+    title: 'Home Renovation',
+    icon: 'home',
+    targetAmount: 15000,
+    currentAmount: 3200,
+    monthlySavings: 1200,
+    priority: 'medium',
+    color: '#F59E0B',
+  },
+];
+
 export default function HomeScreen() {
+  const calculateGoalProgress = (goal: Goal) => {
+    const percentage = (goal.currentAmount / goal.targetAmount) * 100;
+    const remaining = goal.targetAmount - goal.currentAmount;
+    const monthsToComplete = Math.ceil(remaining / goal.monthlySavings);
+    const completionDate = new Date();
+    completionDate.setMonth(completionDate.getMonth() + monthsToComplete);
+    
+    return {
+      percentage: Math.min(percentage, 100),
+      remaining,
+      monthsToComplete,
+      completionDate: completionDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    };
+  };
+
+  const handleGoalPress = (goal: Goal) => {
+    // Navigate to goal detail screen
+    router.push({
+      pathname: '/goal-detail',
+      params: { goalId: goal.id }
+    });
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <LinearGradient
+      colors={['#F8FAFC', '#F0FDF4']}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.profileSection}>
@@ -87,6 +171,86 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Goals Section */}
+        <View style={styles.goalsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Goals</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.goalsScrollView}
+            contentContainerStyle={styles.goalsContainer}
+          >
+            {goals.slice(0, 3).map((goal) => {
+              const progress = calculateGoalProgress(goal);
+              return (
+                <TouchableOpacity
+                  key={goal.id}
+                  style={[styles.goalCard, { borderLeftColor: goal.color }]}
+                  onPress={() => handleGoalPress(goal)}
+                >
+                  <View style={styles.goalHeader}>
+                    <View style={[styles.goalIcon, { backgroundColor: `${goal.color}15` }]}>
+                      <Ionicons name={goal.icon as any} size={20} color={goal.color} />
+                    </View>
+                    <View style={styles.goalPriority}>
+                      <View style={[styles.priorityDot, { backgroundColor: goal.color }]} />
+                    </View>
+                  </View>
+                  
+                  <Text style={styles.goalTitle}>{goal.title}</Text>
+                  
+                  <View style={styles.goalProgressContainer}>
+                    <View style={styles.goalProgressBar}>
+                      <View 
+                        style={[
+                          styles.goalProgressFill, 
+                          { 
+                            width: `${progress.percentage}%`,
+                            backgroundColor: goal.color 
+                          }
+                        ]} 
+                      />
+                    </View>
+                    <Text style={styles.goalProgressText}>
+                      {progress.percentage.toFixed(0)}%
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.goalAmounts}>
+                    <Text style={styles.goalCurrentAmount}>
+                      ${goal.currentAmount.toLocaleString()}
+                    </Text>
+                    <Text style={styles.goalTargetAmount}>
+                      of ${goal.targetAmount.toLocaleString()}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.goalTimeline}>
+                    <View style={styles.goalTimelineItem}>
+                      <Text style={styles.goalTimelineLabel}>Remaining</Text>
+                      <Text style={styles.goalTimelineValue}>
+                        ${progress.remaining.toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={styles.goalTimelineItem}>
+                      <Text style={styles.goalTimelineLabel}>Complete by</Text>
+                      <Text style={styles.goalTimelineValue}>
+                        {progress.completionDate}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
         {/* Recent Transactions */}
         <View style={styles.transactionsSection}>
           <View style={styles.sectionHeader}>
@@ -128,15 +292,18 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+  },
+  safeArea: {
+    flex: 1,
   },
   scrollView: {
     flex: 1,
@@ -347,5 +514,104 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#10B981',
+  },
+  goalsSection: {
+    marginBottom: 32,
+  },
+  goalsScrollView: {
+    marginTop: 16,
+  },
+  goalsContainer: {
+    paddingRight: 24,
+  },
+  goalCard: {
+    width: 280,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    marginRight: 16,
+    borderLeftWidth: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  goalIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goalPriority: {
+    alignItems: 'center',
+  },
+  priorityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  goalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  goalProgressContainer: {
+    marginBottom: 16,
+  },
+  goalProgressBar: {
+    height: 8,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  goalProgressFill: {
+    height: 8,
+    borderRadius: 4,
+  },
+  goalProgressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6B7280',
+    textAlign: 'right',
+  },
+  goalAmounts: {
+    marginBottom: 16,
+  },
+  goalCurrentAmount: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 2,
+  },
+  goalTargetAmount: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  goalTimeline: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  goalTimelineItem: {
+    flex: 1,
+  },
+  goalTimelineLabel: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginBottom: 4,
+  },
+  goalTimelineValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
   },
 });
