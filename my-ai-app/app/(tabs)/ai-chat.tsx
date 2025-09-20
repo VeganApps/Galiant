@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +21,7 @@ import { fetch as expoFetch } from 'expo/fetch';
 export default function AIChatScreen() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const { messages, error, sendMessage } = useChat({
     transport: new DefaultChatTransport({
       fetch: expoFetch as unknown as typeof globalThis.fetch,
@@ -36,6 +38,21 @@ export default function AIChatScreen() {
       setInput('');
     }
   };
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   if (error) {
     return (
@@ -73,6 +90,8 @@ export default function AIChatScreen() {
           style={styles.chatContainer}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.chatContent}
+          keyboardDismissMode="interactive"
+          keyboardShouldPersistTaps="handled"
         >
           {/* Always visible greeting */}
           <View style={styles.welcomeContainer}>
@@ -151,7 +170,7 @@ export default function AIChatScreen() {
         </ScrollView>
 
         {/* Input Area */}
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, isKeyboardVisible ? styles.inputContainerKeyboard : null]}>
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
@@ -202,7 +221,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   chatContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
   welcomeContainer: {
     backgroundColor: 'white',
@@ -325,21 +344,30 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   inputContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
     paddingVertical: 16,
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    backgroundColor: 'transparent',
+    marginBottom: 72,
+  },
+  inputContainerKeyboard: {
+    marginBottom: 0,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 32,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 14,
+    width: '90%',
+    alignSelf: 'center',
   },
   textInput: {
     flex: 1,
