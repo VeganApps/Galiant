@@ -379,3 +379,19 @@ export const fetchTransactionsByCustomer = (customerId: string) =>
       .eq('customer_id', customerId)
       .order('trx_date', { ascending: false })
   );
+
+// Money table functions (alias for finance_table)
+export const fetchMoneyTable = () => SupabaseDataService.fetchAll<FinanceTable>('finance_table');
+export const fetchMoneyTableById = (id: number) => SupabaseDataService.fetchById<FinanceTable>('finance_table', id);
+export const createMoneyTableRecord = (data: Partial<FinanceTable>) => SupabaseDataService.insert('finance_table', data);
+export const updateMoneyTableRecord = (id: number, data: Partial<FinanceTable>) => SupabaseDataService.update('finance_table', id, data);
+export const deleteMoneyTableRecord = (id: number) => SupabaseDataService.delete('finance_table', id);
+
+// Fetch recent money table records (last N records)
+export const fetchRecentMoneyTableRecords = (limit: number = 50) =>
+  SupabaseDataService.fetchWithQuery<FinanceTable>('finance_table', (query) =>
+    query
+      .select('*')
+      .order('trx_date', { ascending: false })
+      .limit(limit)
+  );

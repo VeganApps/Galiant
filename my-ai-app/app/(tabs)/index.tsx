@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   Dimensions,
   SafeAreaView,
   ScrollView,
@@ -13,10 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  fetchFinanceTable,
-  fetchTransactionNormalized,
-} from "../../utils/supabase";
+import { useTransactions } from "../../contexts/TransactionContext";
 
 const { width } = Dimensions.get("window");
 
@@ -76,64 +72,7 @@ const goals: Goal[] = [
 
 export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleFetchFinanceData = async () => {
-    setIsLoading(true);
-    try {
-      console.log("🚀 Fetching finance table data...");
-      const financeData = await fetchFinanceTable();
-      console.log("✅ Finance Table Data:", financeData);
-      console.log("📊 Total records:", financeData.length);
-
-      if (financeData.length > 0) {
-        console.log("📝 Sample record:", financeData[0]);
-      }
-
-      Alert.alert(
-        "Data Fetched Successfully!",
-        `Retrieved ${financeData.length} records from finance_table. Check console for details.`
-      );
-    } catch (error) {
-      console.error("❌ Error fetching finance data:", error);
-      Alert.alert(
-        "Error",
-        `Failed to fetch data: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFetchTransactionData = async () => {
-    setIsLoading(true);
-    try {
-      console.log("🚀 Fetching transaction normalized data...");
-      const transactionData = await fetchTransactionNormalized();
-      console.log("✅ Transaction Normalized Data:", transactionData);
-      console.log("📊 Total records:", transactionData.length);
-
-      if (transactionData.length > 0) {
-        console.log("📝 Sample record:", transactionData[0]);
-      }
-
-      Alert.alert(
-        "Data Fetched Successfully!",
-        `Retrieved ${transactionData.length} records from transaction_normalized. Check console for details.`
-      );
-    } catch (error) {
-      console.error("❌ Error fetching transaction data:", error);
-      Alert.alert(
-        "Error",
-        `Failed to fetch data: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { transactions, isDataLoaded } = useTransactions();
 
   const calculateGoalProgress = (goal: Goal) => {
     const percentage = (goal.currentAmount / goal.targetAmount) * 100;
@@ -305,47 +244,6 @@ export default function HomeScreen() {
                 <Text style={styles.actionLabel}>Analytics</Text>
               </TouchableOpacity>
             </View>
-
-            {/* Temporary Supabase Test Buttons */}
-            <View style={styles.testButtonsContainer}>
-              <Text style={styles.testSectionTitle}>
-                🔧 Supabase Test Buttons
-              </Text>
-              <View style={styles.testButtonsGrid}>
-                <TouchableOpacity
-                  style={[
-                    styles.testButton,
-                    isLoading && styles.testButtonDisabled,
-                  ]}
-                  onPress={handleFetchFinanceData}
-                  disabled={isLoading}
-                >
-                  <View style={styles.testButtonIcon}>
-                    <Ionicons name="server" size={20} color="#EF4444" />
-                  </View>
-                  <Text style={styles.testButtonLabel}>
-                    Fetch Finance Table
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.testButton,
-                    isLoading && styles.testButtonDisabled,
-                  ]}
-                  onPress={handleFetchTransactionData}
-                  disabled={isLoading}
-                >
-                  <View style={styles.testButtonIcon}>
-                    <Ionicons
-                      name="swap-horizontal"
-                      size={20}
-                      color="#EF4444"
-                    />
-                  </View>
-                  <Text style={styles.testButtonLabel}>Fetch Transactions</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
           </View>
 
           {/* Recent Transactions */}
@@ -357,48 +255,53 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Recent Transactions */}
-            <View style={styles.transactionsSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Recent</Text>
-                <TouchableOpacity>
-                  <Text style={styles.seeAllText}>See all</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.transactionsList}>
-                <View style={styles.transactionItem}>
-                  <View style={styles.transactionIcon}>
-                    <Ionicons name="storefront" size={20} color="#6B7280" />
+            <View style={styles.transactionsList}>
+              {isDataLoaded && transactions.length > 0 ? (
+                transactions.slice(0, 3).map((transaction) => (
+                  <View key={transaction.id} style={styles.transactionItem}>
+                    <View style={styles.transactionIcon}>
+                      <Ionicons
+                        name={transaction.icon as any}
+                        size={20}
+                        color="#6B7280"
+                      />
+                    </View>
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.transactionName}>
+                        {transaction.merchant}
+                      </Text>
+                      <Text style={styles.transactionDate}>
+                        {transaction.date}, {transaction.time}
+                      </Text>
+                    </View>
+                    <Text
+                      style={
+                        transaction.type === "income"
+                          ? styles.transactionAmountPositive
+                          : styles.transactionAmount
+                      }
+                    >
+                      {transaction.type === "expense" ? "-" : "+"}
+                      {transaction.amount}
+                    </Text>
                   </View>
-                  <View style={styles.transactionInfo}>
-                    <Text style={styles.transactionName}>Saber Store</Text>
-                    <Text style={styles.transactionDate}>Today, 2:30 PM</Text>
+                ))
+              ) : (
+                <>
+                  <View style={styles.transactionItem}>
+                    <View style={styles.transactionIcon}>
+                      <Ionicons name="storefront" size={20} color="#6B7280" />
+                    </View>
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.transactionName}>
+                        Loading transactions...
+                      </Text>
+                      <Text style={styles.transactionDate}>Please wait</Text>
+                    </View>
+                    <Text style={styles.transactionAmount}>-</Text>
                   </View>
-                  <Text style={styles.transactionAmount}>-$22.00</Text>
-                </View>
-                <View style={styles.transactionItem}>
-                  <View style={styles.transactionIcon}>
-                    <Ionicons name="wifi" size={20} color="#6B7280" />
-                  </View>
-                  <View style={styles.transactionInfo}>
-                    <Text style={styles.transactionName}>Wi-Fi Bill</Text>
-                    <Text style={styles.transactionDate}>Yesterday</Text>
-                  </View>
-                  <Text style={styles.transactionAmount}>-$120.00</Text>
-                </View>
-                <View style={styles.transactionItem}>
-                  <View style={styles.transactionIcon}>
-                    <Ionicons name="card" size={20} color="#10B981" />
-                  </View>
-                  <View style={styles.transactionInfo}>
-                    <Text style={styles.transactionName}>Salary</Text>
-                    <Text style={styles.transactionDate}>Sep 28</Text>
-                  </View>
-                  <Text style={styles.transactionAmountPositive}>
-                    +$3,500.00
-                  </Text>
-                </View>
-              </View>
+                </>
+              )}
             </View>
           </View>
         </ScrollView>
