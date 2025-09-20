@@ -170,27 +170,22 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
                       style={styles.transactionItem}
                     >
                       <View style={styles.transactionLeft}>
-                        <View
-                          style={[
-                            styles.transactionIcon,
-                            {
-                              backgroundColor:
-                                transaction.type === "expense"
-                                  ? "#FEE2E2"
-                                  : "#D1FAE5",
-                            },
-                          ]}
+                        <LinearGradient
+                          colors={
+                            transaction.type === "expense"
+                              ? ["#FCA5A5", "#EF4444"]
+                              : ["#6EE7B7", "#10B981"]
+                          }
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={styles.transactionIconGradient}
                         >
                           <Ionicons
                             name={transaction.icon as any}
                             size={18}
-                            color={
-                              transaction.type === "expense"
-                                ? "#EF4444"
-                                : "#10B981"
-                            }
+                            color="white"
                           />
-                        </View>
+                        </LinearGradient>
                         <View style={styles.transactionInfo}>
                           <Text style={styles.merchantName} numberOfLines={1}>
                             {transaction.merchant}
@@ -204,20 +199,36 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
                         </View>
                       </View>
                       <View style={styles.transactionRight}>
-                        <Text
+                        <View
                           style={[
-                            styles.transactionAmount,
+                            styles.amountPill,
                             {
-                              color:
+                              backgroundColor:
                                 transaction.type === "expense"
-                                  ? "#EF4444"
-                                  : "#10B981",
+                                  ? "#FEE2E2"
+                                  : "#D1FAE5",
+                              borderColor:
+                                transaction.type === "expense"
+                                  ? "#FCA5A5"
+                                  : "#6EE7B7",
                             },
                           ]}
                         >
-                          {transaction.type === "expense" ? "-" : "+"}CHF{" "}
-                          {transaction.amount}
-                        </Text>
+                          <Text
+                            style={[
+                              styles.transactionAmount,
+                              {
+                                color:
+                                  transaction.type === "expense"
+                                    ? "#B91C1C"
+                                    : "#065F46",
+                              },
+                            ]}
+                          >
+                            {transaction.type === "expense" ? "-" : "+"}CHF {""}
+                            {transaction.amount}
+                          </Text>
+                        </View>
                         <Text style={styles.transactionCurrency}>
                           {transaction.currency !== "CHF" &&
                             `(${transaction.currency})`}
@@ -229,9 +240,7 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
               ) : (
                 <View style={styles.emptyState}>
                   <Ionicons name="receipt-outline" size={48} color="#D1D5DB" />
-                  <Text style={styles.emptyStateText}>
-                    No transactions found
-                  </Text>
+                  <Text style={styles.emptyStateText}>No transactions found</Text>
                   <Text style={styles.emptyStateSubtext}>
                     No transactions recorded for {countryName}
                   </Text>
@@ -359,15 +368,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomWidth: 0,
+    marginBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   transactionLeft: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
-  transactionIcon: {
+  transactionIconGradient: {
     width: 36,
     height: 36,
     borderRadius: 10,
@@ -396,10 +413,16 @@ const styles = StyleSheet.create({
   transactionRight: {
     alignItems: "flex-end",
   },
+  amountPill: {
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    marginBottom: 4,
+  },
   transactionAmount: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
+    fontSize: 14,
+    fontWeight: "700",
   },
   transactionCurrency: {
     fontSize: 11,

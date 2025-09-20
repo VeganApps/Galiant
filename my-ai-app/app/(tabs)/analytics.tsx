@@ -640,12 +640,15 @@ export default function AnalyticsScreen() {
                       style={styles.detailsButton}
                       onPress={() => handleShowCountryDetails(country)}
                     >
-                      <Text style={styles.detailsButtonText}>Details</Text>
-                      <Ionicons
-                        name="chevron-forward"
-                        size={16}
-                        color="#10B981"
-                      />
+                      <LinearGradient
+                        colors={[`${country.color}`, "#16A34A"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.detailsButtonGradient}
+                      >
+                        <Text style={styles.detailsButtonText}>Details</Text>
+                        <Ionicons name="chevron-forward" size={16} color="white" />
+                      </LinearGradient>
                     </TouchableOpacity>
                   </View>
                 ))
@@ -1447,18 +1450,25 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   detailsButton: {
+    paddingRight: 12,
+  },
+  detailsButtonGradient: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#F0FDF4",
-    borderLeftWidth: 1,
-    borderLeftColor: "#E5E7EB",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   detailsButtonText: {
-    fontSize: 14,
-    color: "#10B981",
-    fontWeight: "600",
-    marginRight: 4,
+    fontSize: 13,
+    color: "white",
+    fontWeight: "700",
+    marginRight: 6,
   },
 });
