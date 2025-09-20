@@ -51,22 +51,33 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
       (sum, txn) => sum + Math.abs(txn.amount_chf || 0),
       0
     );
-    const totalExpenses = countryTransactions
-      .filter((txn) => txn.direction === 0)
-      .reduce((sum, txn) => sum + Math.abs(txn.amount_chf || 0), 0);
-    const totalIncome = countryTransactions
-      .filter((txn) => txn.direction === 1)
-      .reduce((sum, txn) => sum + Math.abs(txn.amount_chf || 0), 0);
+
+    // Debug direction values
+    const expenseTransactions = countryTransactions.filter(
+      (txn) => txn.direction !== 1
+    );
+    const incomeTransactions = countryTransactions.filter(
+      (txn) => txn.direction === 1
+    );
+
+    console.log(
+      `💰 ${countryName} Stats: ${countryTransactions.length} total, ${expenseTransactions.length} expenses, ${incomeTransactions.length} income`
+    );
+
+    const totalExpenses = expenseTransactions.reduce(
+      (sum, txn) => sum + Math.abs(txn.amount_chf || 0),
+      0
+    );
+    const totalIncome = incomeTransactions.reduce(
+      (sum, txn) => sum + Math.abs(txn.amount_chf || 0),
+      0
+    );
 
     return {
       totalAmount,
       totalExpenses,
       totalIncome,
       transactionCount: countryTransactions.length,
-      averageTransaction:
-        countryTransactions.length > 0
-          ? totalAmount / countryTransactions.length
-          : 0,
     };
   }, [countryTransactions]);
 
@@ -144,12 +155,6 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
                 `CHF ${formatAmount(stats.totalIncome)}`,
                 "trending-up",
                 "#10B981"
-              )}
-              {renderStatCard(
-                "Average",
-                `CHF ${formatAmount(stats.averageTransaction)}`,
-                "calculator",
-                "#3B82F6"
               )}
             </View>
 
@@ -233,31 +238,6 @@ const CountryDetails: React.FC<CountryDetailsProps> = ({
                 </View>
               )}
             </View>
-
-            {/* Summary Footer */}
-            <View style={styles.summaryFooter}>
-              <LinearGradient
-                colors={[countryColor, `${countryColor}CC`]}
-                style={styles.summaryCard}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <View style={styles.summaryContent}>
-                  <Text style={styles.summaryTitle}>Country Summary</Text>
-                  <Text style={styles.summaryText}>
-                    You've made {stats.transactionCount} transactions in{" "}
-                    {countryName}
-                    totaling CHF {formatAmount(stats.totalAmount)}
-                  </Text>
-                  {stats.averageTransaction > 0 && (
-                    <Text style={styles.summaryText}>
-                      Average transaction: CHF{" "}
-                      {formatAmount(stats.averageTransaction)}
-                    </Text>
-                  )}
-                </View>
-              </LinearGradient>
-            </View>
           </ScrollView>
         </LinearGradient>
       </Animated.View>
@@ -320,17 +300,16 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "space-between",
     marginBottom: 24,
-    gap: 12,
+    gap: 8,
   },
   statCard: {
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
     alignItems: "center",
-    width: "48%",
+    flex: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -441,34 +420,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#9CA3AF",
     textAlign: "center",
-  },
-  summaryFooter: {
-    marginBottom: 20,
-  },
-  summaryCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  summaryContent: {
-    alignItems: "center",
-  },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "white",
-    marginBottom: 12,
-  },
-  summaryText: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.9)",
-    textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 4,
   },
 });
 

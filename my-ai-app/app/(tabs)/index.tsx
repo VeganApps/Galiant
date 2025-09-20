@@ -133,7 +133,7 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View style={styles.profileSection}>
               <Text style={styles.greeting}>Good morning,</Text>
-              <Text style={styles.userName}>Lasso</Text>
+              <Text style={styles.userName}>Nils</Text>
             </View>
             <TouchableOpacity style={styles.notificationButton}>
               <Ionicons
