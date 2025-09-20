@@ -199,13 +199,13 @@ export default function HomeScreen() {
             <View style={styles.spendingProgressContainer}>
               <View style={styles.spendingProgressHeader}>
                 <Text style={styles.spendingProgressLabel}>Spent this month</Text>
-                <Text style={styles.spendingProgressAmount}>CHF 1,850 / CHF 4,100</Text>
+                <Text style={styles.spendingProgressAmount}>CHF 3,362 / CHF 4,100</Text>
               </View>
               <View style={styles.spendingProgressBar}>
                 <View style={styles.spendingProgressBarBackground}>
                   <View style={styles.spendingProgressBarFill} />
                 </View>
-                <Text style={styles.spendingProgressPercentage}>45%</Text>
+                <Text style={styles.spendingProgressPercentage}>82%</Text>
               </View>
             </View>
           </View>
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   availableBalanceAmount: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#10B981",
+    color: "#111827",
   },
   spendingProgressContainer: {
     paddingTop: 16,
@@ -694,8 +694,8 @@ const styles = StyleSheet.create({
   },
   spendingProgressBarFill: {
     height: "100%",
-    width: "45%",
-    backgroundColor: "#F59E0B",
+    width: "82%",
+    backgroundColor: "#DC2626",
     borderRadius: 4,
   },
   spendingProgressPercentage: {
