@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { fetchMoneyTable } from "../utils/supabase";
+import { fetchMoneyTable, FinanceTable } from "../utils/supabase";
 import {
   DisplayTransaction,
   transformMoneyTableToDisplay,
@@ -13,6 +13,7 @@ import {
 
 interface TransactionContextType {
   transactions: DisplayTransaction[];
+  rawTransactions: FinanceTable[];
   isLoading: boolean;
   isDataLoaded: boolean;
   refreshTransactions: () => Promise<void>;
@@ -30,6 +31,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
   children,
 }) => {
   const [transactions, setTransactions] = useState<DisplayTransaction[]>([]);
+  const [rawTransactions, setRawTransactions] = useState<FinanceTable[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -42,6 +44,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
 
       if (moneyData.length > 0) {
         const transformedData = transformMoneyTableToDisplay(moneyData);
+        setRawTransactions(moneyData);
         setTransactions(transformedData);
         setIsDataLoaded(true);
         console.log("📊 Transformed transactions:", transformedData.length);
@@ -63,6 +66,7 @@ export const TransactionProvider: React.FC<TransactionProviderProps> = ({
 
   const value: TransactionContextType = {
     transactions,
+    rawTransactions,
     isLoading,
     isDataLoaded,
     refreshTransactions,

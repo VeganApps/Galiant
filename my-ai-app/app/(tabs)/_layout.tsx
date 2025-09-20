@@ -1,47 +1,49 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs } from "expo-router";
+import React from "react";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { display: 'none' }, // Hide default tab bar
-      }}>
+        tabBarStyle: { display: "none" }, // Hide default tab bar
+        animation: "fade",
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: "Home",
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: "Explore",
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
+          title: "History",
         }}
       />
       <Tabs.Screen
         name="ai-chat"
         options={{
-          title: 'Galiant',
+          title: "Galiant",
         }}
       />
       <Tabs.Screen
         name="analytics"
         options={{
-          title: 'Analytics',
+          title: "Analytics",
         }}
       />
       <Tabs.Screen
         name="support"
         options={{
-          title: 'Support',
+          title: "Support",
         }}
       />
     </Tabs>

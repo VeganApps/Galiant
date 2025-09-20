@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { SlideInUp } from "react-native-reanimated";
 import { useTransactions } from "../../contexts/TransactionContext";
 
 interface Transaction {
@@ -291,9 +292,10 @@ export default function HistoryScreen() {
       end={{ x: 1, y: 1 }}
     >
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView
+        <Animated.ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
+          entering={SlideInUp.duration(300).springify()}
         >
           <View style={styles.header}>
             <Text style={styles.title}>Transaction History</Text>
@@ -419,7 +421,7 @@ export default function HistoryScreen() {
               ))
             )}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );

@@ -6,12 +6,13 @@ import React from "react";
 import {
   Dimensions,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { FadeInUp, SlideInRight } from "react-native-reanimated";
+import VendorAnalytics from "../../components/vendor-analytics";
 import { useTransactions } from "../../contexts/TransactionContext";
 
 const { width } = Dimensions.get("window");
@@ -42,9 +43,9 @@ const goals: Goal[] = [
     id: "2",
     title: "Vacation to Japan",
     icon: "airplane",
-    targetAmount: 5000,
-    currentAmount: 2100,
-    monthlySavings: 800,
+    targetAmount: 4500,
+    currentAmount: 1900,
+    monthlySavings: 700,
     priority: "medium",
     color: "#3B82F6",
   },
@@ -52,9 +53,9 @@ const goals: Goal[] = [
     id: "3",
     title: "New MacBook Pro",
     icon: "laptop",
-    targetAmount: 2500,
-    currentAmount: 1200,
-    monthlySavings: 400,
+    targetAmount: 2300,
+    currentAmount: 1100,
+    monthlySavings: 350,
     priority: "low",
     color: "#8B5CF6",
   },
@@ -62,9 +63,9 @@ const goals: Goal[] = [
     id: "4",
     title: "Home Renovation",
     icon: "home",
-    targetAmount: 15000,
-    currentAmount: 3200,
-    monthlySavings: 1200,
+    targetAmount: 13500,
+    currentAmount: 2900,
+    monthlySavings: 1100,
     priority: "medium",
     color: "#F59E0B",
   },
@@ -72,6 +73,7 @@ const goals: Goal[] = [
 
 export default function HomeScreen() {
   const { transactions, isDataLoaded } = useTransactions();
+  const [showVendorAnalytics, setShowVendorAnalytics] = React.useState(false);
 
   const calculateGoalProgress = (goal: Goal) => {
     const percentage = (goal.currentAmount / goal.targetAmount) * 100;
@@ -122,9 +124,10 @@ export default function HomeScreen() {
         />
       </View>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView
+        <Animated.ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
+          entering={SlideInRight.duration(300).springify()}
         >
           {/* Header Section */}
           <View style={styles.header}>
@@ -142,21 +145,27 @@ export default function HomeScreen() {
           </View>
 
           {/* Balance Card */}
-          <View style={styles.balanceSection}>
+          <Animated.View
+            style={styles.balanceSection}
+            entering={FadeInUp.delay(100).duration(600).springify()}
+          >
             <Text style={styles.balanceLabel}>Total Balance</Text>
-            <Text style={styles.balanceAmount}>$121,000</Text>
+            <Text style={styles.balanceAmount}>CHF 121,000</Text>
             <View style={styles.balanceSubtext}>
               <Text style={styles.balanceChange}>+2.4%</Text>
               <Text style={styles.balancePeriod}>from last month</Text>
             </View>
-          </View>
+          </Animated.View>
           <View style={styles.sgkbSection}>
             <SGKBLogo size={16} />
             <Text style={styles.sgkbText}>St. Galler Kantonalbank</Text>
           </View>
 
           {/* Financial Overview */}
-          <View style={styles.financialContainer}>
+          <Animated.View
+            style={styles.financialContainer}
+            entering={FadeInUp.delay(200).duration(600).springify()}
+          >
             <View style={styles.financialHeader}>
               <Text style={styles.financialTitle}>Financial Overview</Text>
               <Text style={styles.financialPeriod}>This Month</Text>
@@ -168,7 +177,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-up" size={20} color="#34D399" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>$21,000</Text>
+                  <Text style={styles.financialValue}>CHF 21,000</Text>
                   <Text style={styles.financialLabel}>Total Income</Text>
                   <Text style={styles.financialChange}>
                     +12.5% vs last month
@@ -186,7 +195,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-down" size={20} color="#F87171" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>$11,000</Text>
+                  <Text style={styles.financialValue}>CHF 11,000</Text>
                   <Text style={styles.financialLabel}>Total Expenses</Text>
                   <Text style={styles.financialChange}>
                     +8.2% vs last month
@@ -204,7 +213,7 @@ export default function HomeScreen() {
                   <Ionicons name="wallet" size={20} color="#3B82F6" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue}>$10,000</Text>
+                  <Text style={styles.financialValue}>CHF 10,000</Text>
                   <Text style={styles.financialLabel}>Net Savings</Text>
                   <Text style={styles.financialChange}>
                     +18.3% vs last month
@@ -212,10 +221,13 @@ export default function HomeScreen() {
                 </View>
               </View>
             </View>
-          </View>
+          </Animated.View>
 
           {/* Quick Actions */}
-          <View style={styles.actionsSection}>
+          <Animated.View
+            style={styles.actionsSection}
+            entering={FadeInUp.delay(300).duration(600).springify()}
+          >
             <Text style={styles.sectionTitle}>Quick Actions</Text>
             <View style={styles.actionsGrid}>
               <TouchableOpacity style={styles.actionItem}>
@@ -230,23 +242,32 @@ export default function HomeScreen() {
                 </View>
                 <Text style={styles.actionLabel}>Transfer</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionItem}>
+              <TouchableOpacity
+                style={styles.actionItem}
+                onPress={() => setShowVendorAnalytics(true)}
+              >
                 <View style={styles.actionIcon}>
-                  <Ionicons name="receipt" size={24} color="#10B981" />
+                  <Ionicons name="people" size={24} color="#10B981" />
                 </View>
-                <Text style={styles.actionLabel}>Bills</Text>
+                <Text style={styles.actionLabel}>Vendors</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionItem}>
+              <TouchableOpacity
+                style={styles.actionItem}
+                onPress={() => router.push("/analytics")}
+              >
                 <View style={styles.actionIcon}>
                   <Ionicons name="analytics" size={24} color="#10B981" />
                 </View>
                 <Text style={styles.actionLabel}>Analytics</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
 
           {/* Recent Transactions */}
-          <View style={styles.transactionsSection}>
+          <Animated.View
+            style={styles.transactionsSection}
+            entering={FadeInUp.delay(400).duration(600).springify()}
+          >
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Recent</Text>
               <TouchableOpacity onPress={() => router.push("/history")}>
@@ -302,9 +323,15 @@ export default function HomeScreen() {
                 </>
               )}
             </View>
-          </View>
-        </ScrollView>
+          </Animated.View>
+        </Animated.ScrollView>
       </SafeAreaView>
+
+      {/* Vendor Analytics Modal */}
+      <VendorAnalytics
+        visible={showVendorAnalytics}
+        onClose={() => setShowVendorAnalytics(false)}
+      />
     </LinearGradient>
   );
 }
