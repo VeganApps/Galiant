@@ -127,11 +127,11 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View style={styles.profileSection}>
               <Text style={styles.greeting}>Good morning,</Text>
-              <Text style={styles.userName}>Lasso</Text>
+              <Text style={styles.userName}>Urs</Text>
             </View>
             <TouchableOpacity style={styles.notificationButton}>
               <Ionicons
-                name="notifications-outline"
+                name="settings-outline"
                 size={24}
                 color="#6B7280"
               />
@@ -141,7 +141,7 @@ export default function HomeScreen() {
           {/* Balance Card */}
           <View style={styles.balanceSection}>
             <Text style={styles.balanceLabel}>Total Balance</Text>
-            <Text style={styles.balanceAmount}>CHF 121,000</Text>
+            <Text style={styles.balanceAmount}>CHF 18,500</Text>
             <View style={styles.balanceSubtext}>
               <Text style={styles.balanceChange}>+2.4%</Text>
               <Text style={styles.balancePeriod}>from last month</Text>
@@ -163,7 +163,7 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.monthlyInfo}>
                   <Text style={styles.monthlyLabel}>Monthly Salary</Text>
-                  <Text style={styles.monthlyAmount}>CHF 8,500</Text>
+                  <Text style={styles.monthlyAmount}>CHF 7,900</Text>
                 </View>
               </View>
 
@@ -178,19 +178,35 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.monthlyInfo}>
                   <Text style={styles.monthlyLabel}>Monthly Expenses</Text>
-                  <Text style={styles.monthlyAmount}>CHF 6,200</Text>
+                  <View style={styles.monthlyAmountRow}>
+                    <Text style={styles.monthlyCurrency}>CHF</Text>
+                    <Text style={styles.monthlyAmount}>3,800</Text>
+                  </View>
                 </View>
               </View>
             </View>
 
             <View style={styles.availableBalanceContainer}>
-              <Text style={styles.availableBalanceLabel}>
-                Available After Expenses
-              </Text>
-              <Text style={styles.availableBalanceAmount}>CHF 2,300</Text>
-              <Text style={styles.availableBalanceSubtext}>
-                +27% vs last month
-              </Text>
+              <View style={styles.availableBalanceRow}>
+                <Text style={styles.availableBalanceLabel}>
+                  Available After Expenses
+                </Text>
+                <Text style={styles.availableBalanceAmount}>CHF 4,100</Text>
+              </View>
+            </View>
+
+            {/* Monthly Spending Progress */}
+            <View style={styles.spendingProgressContainer}>
+              <View style={styles.spendingProgressHeader}>
+                <Text style={styles.spendingProgressLabel}>Spent this month</Text>
+                <Text style={styles.spendingProgressAmount}>CHF 1,850 / CHF 4,100</Text>
+              </View>
+              <View style={styles.spendingProgressBar}>
+                <View style={styles.spendingProgressBarBackground}>
+                  <View style={styles.spendingProgressBarFill} />
+                </View>
+                <Text style={styles.spendingProgressPercentage}>45%</Text>
+              </View>
             </View>
           </View>
 
@@ -606,28 +622,88 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 4,
   },
+  monthlyAmountRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 4,
+  },
+  monthlyCurrency: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
   monthlyAmount: {
     fontSize: 16,
     fontWeight: "700",
     color: "#111827",
   },
   availableBalanceContainer: {
-    alignItems: "center",
-    paddingTop: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: "rgba(0,0,0,0.06)",
   },
+  availableBalanceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   availableBalanceLabel: {
+    fontSize: 13,
+    color: "#6B7280",
+    fontWeight: "500",
+    flex: 1,
+  },
+  availableBalanceAmount: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#10B981",
+  },
+  spendingProgressContainer: {
+    paddingTop: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(0,0,0,0.06)",
+  },
+  spendingProgressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  spendingProgressLabel: {
     fontSize: 14,
     color: "#6B7280",
     fontWeight: "500",
-    marginBottom: 8,
   },
-  availableBalanceAmount: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#10B981",
-    marginBottom: 6,
+  spendingProgressAmount: {
+    fontSize: 14,
+    color: "#111827",
+    fontWeight: "600",
+  },
+  spendingProgressBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  spendingProgressBarBackground: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  spendingProgressBarFill: {
+    height: "100%",
+    width: "45%",
+    backgroundColor: "#F59E0B",
+    borderRadius: 4,
+  },
+  spendingProgressPercentage: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "600",
+    minWidth: 32,
+    textAlign: "right",
   },
   availableBalanceSubtext: {
     fontSize: 14,
