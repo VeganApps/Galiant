@@ -75,28 +75,6 @@ const goals: Goal[] = [
 export default function HomeScreen() {
   const { transactions, isLoading } = useTransactions();
 
-  const formatTransactionDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return `Today, ${date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })}`;
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-    }
-  };
-
   const calculateGoalProgress = (goal: Goal) => {
     const percentage = (goal.currentAmount / goal.targetAmount) * 100;
     const remaining = goal.targetAmount - goal.currentAmount;
@@ -466,7 +444,8 @@ export default function HomeScreen() {
               ) : (
                 transactions.slice(0, 3).map((transaction, index) => {
                   const isIncome = transaction.type === "income";
-                  const formattedDate = formatTransactionDate(transaction.date);
+                  // The date is already formatted in the transaction data
+                  const formattedDate = transaction.date;
                   // Use the icon from the transaction data, fallback to a default
                   const iconName =
                     transaction.icon || (isIncome ? "trending-up" : "card");
