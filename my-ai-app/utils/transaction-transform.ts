@@ -216,6 +216,13 @@ const getCategoryIcon = (category: string): string => {
     case 'professional':
       return 'briefcase';
     
+    // Rent
+    case 'rent':
+    case 'housing':
+    case 'home':
+    case 'mortgage':
+      return 'home';
+
     // Financial Services
     case 'financial services':
     case 'banking':

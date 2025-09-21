@@ -180,7 +180,7 @@ export default function HomeScreen() {
                   <Text style={styles.monthlyLabel}>Fixed Expenses</Text>
                   <View style={styles.monthlyAmountRow}>
                     <Text style={styles.monthlyCurrency}>CHF</Text>
-                    <Text style={styles.monthlyAmount}>3,800</Text>
+                    <Text style={styles.monthlyAmount}>3,455</Text>
                   </View>
                 </View>
               </View>
@@ -189,9 +189,9 @@ export default function HomeScreen() {
             <View style={styles.availableBalanceContainer}>
               <View style={styles.availableBalanceRow}>
                 <Text style={styles.availableBalanceLabel}>
-                  Available After Expenses
+                  Available After Fixed Expenses
                 </Text>
-                <Text style={styles.availableBalanceAmount}>CHF 4,100</Text>
+                <Text style={styles.availableBalanceAmount}>CHF 4,445</Text>
               </View>
             </View>
 
@@ -199,13 +199,13 @@ export default function HomeScreen() {
             <View style={styles.spendingProgressContainer}>
               <View style={styles.spendingProgressHeader}>
                 <Text style={styles.spendingProgressLabel}>Spent this month</Text>
-                <Text style={styles.spendingProgressAmount}>CHF 3,362 / CHF 4,100</Text>
+                <Text style={styles.spendingProgressAmount}>CHF 3,362 / CHF 4,445</Text>
               </View>
               <View style={styles.spendingProgressBar}>
                 <View style={styles.spendingProgressBarBackground}>
                   <View style={styles.spendingProgressBarFill} />
                 </View>
-                <Text style={styles.spendingProgressPercentage}>82%</Text>
+                <Text style={styles.spendingProgressPercentage}>75%</Text>
               </View>
             </View>
           </View>
@@ -223,7 +223,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-up" size={20} color="#34D399" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 21,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 7,900</Text>
                   <Text style={styles.financialLabel}>Total Income</Text>
                   <Text style={styles.financialChange}>
                     +12.5% vs last month
@@ -241,7 +241,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-down" size={20} color="#F87171" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 11,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 6,817</Text>
                   <Text style={styles.financialLabel}>Total Expenses</Text>
                   <Text style={styles.financialChange}>
                     +8.2% vs last month
@@ -259,10 +259,10 @@ export default function HomeScreen() {
                   <Ionicons name="wallet" size={20} color="#3B82F6" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 10,000</Text>
+                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 34,445</Text>
                   <Text style={styles.financialLabel}>Net Savings</Text>
                   <Text style={styles.financialChange}>
-                    +18.3% vs last month
+                    +5.3% vs last month
                   </Text>
                 </View>
               </View>

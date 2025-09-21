@@ -88,6 +88,7 @@ export default function AnalyticsScreen() {
               <View style={styles.statContent}>
                 <Text style={styles.statLabel}>This Month</Text>
                 <Text style={styles.statValue}>+CHF 2,200</Text>
+                {/* TODO: Replace with real value */}
                 <Text style={styles.statChange}>+12% from last month</Text>
               </View>
             </LinearGradient>
@@ -124,13 +125,13 @@ export default function AnalyticsScreen() {
                 </View>
                 <View style={styles.categoryInfo}>
                   <Text style={styles.categoryName}>Food & Dining</Text>
-                  <Text style={styles.categoryAmount}>CHF 1,140</Text>
+                  <Text style={styles.categoryAmount}>CHF 116</Text>
                 </View>
                 <View style={styles.categoryBar}>
                   <View
                     style={[
                       styles.categoryProgress,
-                      { width: "75%", backgroundColor: "#EF4444" },
+                      { width: "40%", backgroundColor: "#4ADE80" },
                     ]}
                   />
                 </View>
@@ -147,7 +148,7 @@ export default function AnalyticsScreen() {
                 </View>
                 <View style={styles.categoryInfo}>
                   <Text style={styles.categoryName}>Transportation</Text>
-                  <Text style={styles.categoryAmount}>CHF 820</Text>
+                  <Text style={styles.categoryAmount}>CHF 170</Text>
                 </View>
                 <View style={styles.categoryBar}>
                   <View
@@ -170,13 +171,13 @@ export default function AnalyticsScreen() {
                 </View>
                 <View style={styles.categoryInfo}>
                   <Text style={styles.categoryName}>Shopping</Text>
-                  <Text style={styles.categoryAmount}>CHF 600</Text>
+                  <Text style={styles.categoryAmount}>CHF 384</Text>
                 </View>
                 <View style={styles.categoryBar}>
                   <View
                     style={[
                       styles.categoryProgress,
-                      { width: "40%", backgroundColor: "#4ADE80" },
+                      { width: "75%", backgroundColor: "#EF4444" },
                     ]}
                   />
                 </View>
@@ -193,7 +194,7 @@ export default function AnalyticsScreen() {
                 </View>
                 <View style={styles.categoryInfo}>
                   <Text style={styles.categoryName}>Healthcare</Text>
-                  <Text style={styles.categoryAmount}>CHF 390</Text>
+                  <Text style={styles.categoryAmount}>CHF 110</Text>
                 </View>
                 <View style={styles.categoryBar}>
                   <View
@@ -281,6 +282,7 @@ export default function AnalyticsScreen() {
           {/* World Map Spending */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Spending by Country</Text>
+            {/* TODO: Make this show only the values from this year */}
             <Text style={styles.sectionSubtitle}>
               {isDataLoaded
                 ? "Your international spending activity"
@@ -411,6 +413,7 @@ export default function AnalyticsScreen() {
           </View>
 
           {/* Spending Trends Analysis */}
+          {/* TODO: Remove or use real values? */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Spending Trends</Text>
             <Text style={styles.sectionSubtitle}>

@@ -360,6 +360,7 @@ export default function HistoryScreen() {
     "Shopping",
     "Transportation",
     "Business Services",
+    "Rent",
     "Entertainment",
     "Healthcare",
     "Travel",
@@ -424,6 +425,13 @@ export default function HistoryScreen() {
       case "business":
       case "professional":
         return "#6366F1"; // Indigo
+
+      // Housing
+      case "housing":
+      case "home":
+      case "rent":
+      case "mortgage":
+        return "#FBBF24"; // Amber
 
       // Financial Services
       case "financial services":
