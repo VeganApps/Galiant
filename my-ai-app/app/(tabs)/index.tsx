@@ -1,10 +1,13 @@
 import SGKBLogo from "@/components/sgkb-logo";
+import { useTransactions } from "@/contexts/TransactionContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -70,6 +73,30 @@ const goals: Goal[] = [
 ];
 
 export default function HomeScreen() {
+  const { transactions, isLoading } = useTransactions();
+
+  const formatTransactionDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return `Today, ${date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })}`;
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    } else {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    }
+  };
+
   const calculateGoalProgress = (goal: Goal) => {
     const percentage = (goal.currentAmount / goal.targetAmount) * 100;
     const remaining = goal.targetAmount - goal.currentAmount;
@@ -130,11 +157,7 @@ export default function HomeScreen() {
               <Text style={styles.userName}>Urs</Text>
             </View>
             <TouchableOpacity style={styles.notificationButton}>
-              <Ionicons
-                name="settings-outline"
-                size={24}
-                color="#6B7280"
-              />
+              <Ionicons name="settings-outline" size={24} color="#6B7280" />
             </TouchableOpacity>
           </View>
 
@@ -198,8 +221,12 @@ export default function HomeScreen() {
             {/* Monthly Spending Progress */}
             <View style={styles.spendingProgressContainer}>
               <View style={styles.spendingProgressHeader}>
-                <Text style={styles.spendingProgressLabel}>Spent this month</Text>
-                <Text style={styles.spendingProgressAmount}>CHF 3,362 / CHF 4,445</Text>
+                <Text style={styles.spendingProgressLabel}>
+                  Spent this month
+                </Text>
+                <Text style={styles.spendingProgressAmount}>
+                  CHF 3,362 / CHF 4,445
+                </Text>
               </View>
               <View style={styles.spendingProgressBar}>
                 <View style={styles.spendingProgressBarBackground}>
@@ -223,7 +250,15 @@ export default function HomeScreen() {
                   <Ionicons name="trending-up" size={20} color="#34D399" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 7,900</Text>
+                  <Text
+                    style={styles.financialValue}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}
+                    ellipsizeMode="tail"
+                  >
+                    CHF 7,900
+                  </Text>
                   <Text style={styles.financialLabel}>Total Income</Text>
                   <Text style={styles.financialChange}>
                     +12.5% vs last month
@@ -241,7 +276,15 @@ export default function HomeScreen() {
                   <Ionicons name="trending-down" size={20} color="#F87171" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 6,817</Text>
+                  <Text
+                    style={styles.financialValue}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}
+                    ellipsizeMode="tail"
+                  >
+                    CHF 6,817
+                  </Text>
                   <Text style={styles.financialLabel}>Total Expenses</Text>
                   <Text style={styles.financialChange}>
                     +8.2% vs last month
@@ -259,7 +302,15 @@ export default function HomeScreen() {
                   <Ionicons name="wallet" size={20} color="#3B82F6" />
                 </View>
                 <View style={styles.financialContent}>
-                  <Text style={styles.financialValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">CHF 34,445</Text>
+                  <Text
+                    style={styles.financialValue}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}
+                    ellipsizeMode="tail"
+                  >
+                    CHF 34,445
+                  </Text>
                   <Text style={styles.financialLabel}>Net Savings</Text>
                   <Text style={styles.financialChange}>
                     +5.3% vs last month
@@ -405,41 +456,66 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.transactionsList}>
-              <View style={styles.transactionItem}>
-                <View style={styles.transactionIcon}>
-                  <Ionicons name="storefront" size={20} color="#6B7280" />
+              {isLoading ? (
+                <View style={styles.transactionItem}>
+                  <ActivityIndicator size="small" color="#10B981" />
+                  <Text style={styles.transactionName}>
+                    Loading transactions...
+                  </Text>
                 </View>
-                <View style={styles.transactionInfo}>
-                  <Text style={styles.transactionName}>Saber Store</Text>
-                  <Text style={styles.transactionDate}>Today, 2:30 PM</Text>
-                </View>
-                <Text style={styles.transactionAmount}>-CHF 22.00</Text>
-              </View>
-              <View style={styles.transactionItem}>
-                <View style={styles.transactionIcon}>
-                  <Ionicons name="wifi" size={20} color="#6B7280" />
-                </View>
-                <View style={styles.transactionInfo}>
-                  <Text style={styles.transactionName}>Wi-Fi Bill</Text>
-                  <Text style={styles.transactionDate}>Yesterday</Text>
-                </View>
-                <Text style={styles.transactionAmount}>-CHF 120.00</Text>
-              </View>
-              <View style={styles.transactionItem}>
-                <View style={styles.transactionIcon}>
-                  <Ionicons name="card" size={20} color="#10B981" />
-                </View>
-                <View style={styles.transactionInfo}>
-                  <Text style={styles.transactionName}>Salary</Text>
-                  <Text style={styles.transactionDate}>Sep 28</Text>
-                </View>
-                <Text style={styles.transactionAmountPositive}>
-                  +CHF 3,500.00
-                </Text>
-              </View>
+              ) : (
+                transactions.slice(0, 3).map((transaction, index) => {
+                  const isIncome = transaction.type === "income";
+                  const formattedDate = formatTransactionDate(transaction.date);
+                  // Use the icon from the transaction data, fallback to a default
+                  const iconName =
+                    transaction.icon || (isIncome ? "trending-up" : "card");
+
+                  return (
+                    <View
+                      key={`${transaction.id}-${index}`}
+                      style={styles.transactionItem}
+                    >
+                      <View style={styles.transactionIcon}>
+                        {/^https?:\/\//.test(iconName) ||
+                        iconName.startsWith("data:") ? (
+                          <Image
+                            source={{ uri: iconName }}
+                            style={styles.transactionImage}
+                          />
+                        ) : (
+                          <Ionicons
+                            name={iconName as any}
+                            size={20}
+                            color={isIncome ? "#10B981" : "#6B7280"}
+                          />
+                        )}
+                      </View>
+                      <View style={styles.transactionInfo}>
+                        <Text style={styles.transactionName}>
+                          {transaction.merchant}
+                        </Text>
+                        <Text style={styles.transactionDate}>
+                          {formattedDate}
+                        </Text>
+                      </View>
+                      <Text
+                        style={
+                          isIncome
+                            ? styles.transactionAmountPositive
+                            : styles.transactionAmount
+                        }
+                      >
+                        {isIncome ? "+" : "-"}
+                        {transaction.currency} {transaction.amount}
+                      </Text>
+                    </View>
+                  );
+                })
+              )}
             </View>
           </View>
-          
+
           {/* Bottom spacing for navigation */}
           <View style={styles.bottomSpacing} />
         </ScrollView>
@@ -875,6 +951,11 @@ const styles = StyleSheet.create({
     marginRight: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(0,0,0,0.06)",
+  },
+  transactionImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
   },
   transactionInfo: {
     flex: 1,
