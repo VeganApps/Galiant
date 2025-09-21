@@ -101,6 +101,9 @@ export default function TabTwoScreen() {
           ),
         })}
       </Collapsible>
+      
+      {/* Bottom spacing for navigation */}
+      <View style={styles.bottomSpacing} />
       </ParallaxScrollView>
     </LinearGradient>
   );
@@ -119,5 +122,8 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  bottomSpacing: {
+    height: 100,
   },
 });

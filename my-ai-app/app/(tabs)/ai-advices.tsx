@@ -12,6 +12,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
+import { router } from "expo-router";
 import Animated, { FadeInUp, SlideInLeft } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
@@ -157,12 +158,20 @@ export default function AIAssistantScreen() {
 
   const handleQuickQuestion = () => {
     if (quickQuestion.trim()) {
-      Alert.alert(
-        "AI Response",
-        `I understand you're asking: "${quickQuestion}". This feature will connect to our AI chat system for detailed responses.`,
-        [{ text: "OK" }]
-      );
+      // Save the question to localStorage/AsyncStorage for the chat page
+      const savedQuestion = quickQuestion.trim();
+      
+      // Clear the input
       setQuickQuestion("");
+      
+      // Switch to the ai-chat page (page 3)
+      router.push({
+        pathname: "/ai-chat",
+        params: { 
+          preloadedQuestion: savedQuestion,
+          source: "ai-advices"
+        }
+      });
     }
   };
 

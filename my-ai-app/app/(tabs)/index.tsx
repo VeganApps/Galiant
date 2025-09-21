@@ -162,7 +162,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-up" size={20} color="#10B981" />
                 </View>
                 <View style={styles.monthlyInfo}>
-                  <Text style={styles.monthlyLabel}>Monthly Salary</Text>
+                  <Text style={styles.monthlyLabel}>Salary</Text>
                   <Text style={styles.monthlyAmount}>CHF 7,900</Text>
                 </View>
               </View>
@@ -177,7 +177,7 @@ export default function HomeScreen() {
                   <Ionicons name="trending-down" size={20} color="#EF4444" />
                 </View>
                 <View style={styles.monthlyInfo}>
-                  <Text style={styles.monthlyLabel}>Monthly Expenses</Text>
+                  <Text style={styles.monthlyLabel}>Fixed Expenses</Text>
                   <View style={styles.monthlyAmountRow}>
                     <Text style={styles.monthlyCurrency}>CHF</Text>
                     <Text style={styles.monthlyAmount}>3,800</Text>
@@ -439,6 +439,9 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
+          
+          {/* Bottom spacing for navigation */}
+          <View style={styles.bottomSpacing} />
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -997,5 +1000,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#111827",
+  },
+  bottomSpacing: {
+    height: 100,
   },
 });

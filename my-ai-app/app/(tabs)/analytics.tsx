@@ -391,63 +391,6 @@ export default function AnalyticsScreen() {
               </View>
             )}
 
-            {/* Country List */}
-            <View style={styles.countryListContainer}>
-              <Text style={styles.countryListTitle}>
-                {countrySpendingData.length > 0
-                  ? `All Countries (${countrySpendingData.length})`
-                  : "Loading Countries..."}
-              </Text>
-              {countrySpendingData.length > 0 ? (
-                countrySpendingData.map((country, index) => (
-                  <View key={index} style={styles.countryListItem}>
-                    <TouchableOpacity
-                      style={styles.countryListMain}
-                      onPress={() => setSelectedCountry(country)}
-                    >
-                      <View style={styles.countryListLeft}>
-                        <Text style={styles.countryListFlag}>
-                          {country.flag}
-                        </Text>
-                        <View style={styles.countryListInfo}>
-                          <Text style={styles.countryListName}>
-                            {country.country}
-                          </Text>
-                          <Text style={styles.countryListTransactions} numberOfLines={1} ellipsizeMode="tail">
-                            {country.transactions} transactions
-                          </Text>
-                        </View>
-                      </View>
-                      <View style={styles.countryListRight}>
-                        <Text style={styles.countryListAmount}>
-                          CHF {country.amount}
-                        </Text>
-                        <Text style={styles.countryListPercentage}>
-                          {country.percentage}%
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.detailsButton}
-                      onPress={() => handleShowCountryDetails(country)}
-                    >
-                      <View style={styles.detailsButtonNeutral}>
-                        <Text style={styles.detailsButtonNeutralText}>Details</Text>
-                        <Ionicons name="chevron-forward" size={16} color="#6B7280" />
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                ))
-              ) : (
-                <View style={styles.loadingContainer}>
-                  <Text style={styles.loadingText}>
-                    {isDataLoaded
-                      ? "No international transactions found"
-                      : "Loading transaction data..."}
-                  </Text>
-                </View>
-              )}
-            </View>
 
             {/* See All Vendors Button */}
             <TouchableOpacity
@@ -600,6 +543,9 @@ export default function AnalyticsScreen() {
               </TouchableOpacity>
             </View>
           </View>
+          
+          {/* Bottom spacing for navigation */}
+          <View style={styles.bottomSpacing} />
         </Animated.ScrollView>
       </SafeAreaView>
 
@@ -1002,74 +948,6 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     textAlign: "center",
   },
-  countryListContainer: {
-    backgroundColor: "white",
-    borderRadius: 16,
-    paddingVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  countryListTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-  },
-  countryListItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-  },
-  countryListMain: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  countryListLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  countryListFlag: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  countryListInfo: {
-    flex: 1,
-  },
-  countryListName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  countryListTransactions: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  countryListRight: {
-    alignItems: "flex-end",
-  },
-  countryListAmount: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  countryListPercentage: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
   seeAllButton: {
     marginTop: 20,
   },
@@ -1100,45 +978,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#6B7280",
     fontStyle: "italic",
-  },
-  detailsButton: {
-    paddingRight: 12,
-  },
-  detailsButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  detailsButtonText: {
-    fontSize: 13,
-    color: "white",
-    fontWeight: "700",
-    marginRight: 6,
-  },
-  detailsButtonNeutral: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  detailsButtonNeutralText: {
-    fontSize: 13,
-    color: "#6B7280",
-    fontWeight: "700",
-    marginRight: 6,
   },
   trendsAnalysisContainer: {
     flexDirection: "row",
@@ -1224,5 +1063,8 @@ const styles = StyleSheet.create({
   reportDescription: {
     fontSize: 14,
     color: "#6B7280",
+  },
+  bottomSpacing: {
+    height: 100,
   },
 });

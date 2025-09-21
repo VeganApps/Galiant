@@ -1,6 +1,7 @@
 import { generateAPIUrl } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Keyboard,
@@ -39,6 +40,11 @@ const promptQuestions = [
 ];
 
 export default function AIChatScreen() {
+  const { preloadedQuestion, source } = useLocalSearchParams<{
+    preloadedQuestion?: string;
+    source?: string;
+  }>();
+  
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -146,6 +152,21 @@ export default function AIChatScreen() {
       return () => clearTimeout(t);
     }
   }, [messages]);
+
+  // Handle preloaded question from AI Advices page
+  useEffect(() => {
+    if (preloadedQuestion && source === "ai-advices") {
+      // Set the input with the preloaded question
+      setInput(preloadedQuestion);
+      
+      // Automatically send the question after a short delay
+      const timer = setTimeout(() => {
+        sendMessage(preloadedQuestion);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [preloadedQuestion, source]);
 
   // Animate prompt questions every 5 seconds (fade + cycle)
   useEffect(() => {
@@ -277,6 +298,9 @@ export default function AIChatScreen() {
                 </View>
               </View>
             )}
+            
+            {/* Bottom spacing for navigation */}
+            <View style={styles.bottomSpacing} />
           </ScrollView>
 
           {/* Floating Animated Sample Prompt */}
@@ -570,5 +594,8 @@ const styles = StyleSheet.create({
     color: "#EF4444",
     textAlign: "center",
     marginTop: 16,
+  },
+  bottomSpacing: {
+    height: 100,
   },
 });
