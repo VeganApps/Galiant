@@ -33,6 +33,12 @@ const VendorAnalytics: React.FC<VendorAnalyticsProps> = ({
   visible,
   onClose,
 }) => {
+  const formatVendorName = (name: string) => {
+    if (name.startsWith("Vergütung / ")) {
+      return name.substring("Vergütung / ".length);
+    }
+    return name;
+  };
   const { transactions, isLoading } = useTransactions();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -307,8 +313,9 @@ const VendorAnalytics: React.FC<VendorAnalyticsProps> = ({
               <Text style={styles.vendorFlag}>{vendor.flag}</Text>
               <View style={styles.vendorInfo}>
                 <Text style={styles.vendorName} numberOfLines={1}>
-                  {vendor.vendor}
-                  {/* TODO: Make this show the correct name (need to adjust the model) */}
+                  {/* Strip prefix "Vergütung / " from vendor name if present */}
+                  {/* TODO: Make this show the correct name (might need to adjust the model) */}
+                  {formatVendorName(vendor.vendor)}
                 </Text>
                 <Text style={styles.vendorCategory}>{vendor.category}</Text>
               </View>
@@ -364,7 +371,7 @@ const VendorAnalytics: React.FC<VendorAnalyticsProps> = ({
             <View style={styles.modalTitleContainer}>
               <Text style={styles.modalFlag}>{selectedVendor.flag}</Text>
               <View>
-                <Text style={styles.modalTitle}>{selectedVendor.vendor}</Text>
+                <Text style={styles.modalTitle}>{formatVendorName(selectedVendor.vendor)}</Text>
                 <Text style={styles.modalSubtitle}>
                   {selectedVendor.category}
                 </Text>
