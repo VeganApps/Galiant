@@ -14,6 +14,7 @@ interface WatsonConfig {
   topP?: number;
   repetitionPenalty?: number;
   systemPrompt?: string;
+  contextWindowSize?: number; // Maximum number of recent messages to include in context
 }
 
 interface ChatMessage {
@@ -59,6 +60,7 @@ class WatsonxChat {
       topP: config.topP || 0.95,
       repetitionPenalty: config.repetitionPenalty || 1.1,
       systemPrompt: config.systemPrompt || "You are Galiant, a helpful AI finance assistant. You help users take control of their finances, create budgets, set financial goals, and provide personalized financial advice. Be friendly, encouraging, and use emojis appropriately to make financial planning fun and engaging.",
+      contextWindowSize: config.contextWindowSize || 10, // Keep last 10 messages (5 user + 5 assistant pairs)
       ...config
     };
 
@@ -104,8 +106,9 @@ class WatsonxChat {
       };
       this.messages.push(userMsg);
 
-      // Generate response
-      const prompt = this.formatMessagesAsPrompt(this.messages);
+      // Generate response using only relevant context window
+      const contextMessages = this.getRelevantContext();
+      const prompt = this.formatMessagesAsPrompt(contextMessages);
       const response = await this.generateText(prompt);
 
       // Add assistant response to conversation
@@ -135,6 +138,20 @@ class WatsonxChat {
         message: undefined
       };
     }
+  }
+
+  /**
+   * Get relevant context window for API calls (system prompt + recent messages)
+   */
+  private getRelevantContext(): ChatMessage[] {
+    const systemMessages = this.messages.filter(msg => msg.role === 'system');
+    const conversationMessages = this.messages.filter(msg => msg.role !== 'system');
+    
+    // Get the most recent messages within the context window
+    const recentMessages = conversationMessages.slice(-this.config.contextWindowSize);
+    
+    // Always include system messages + recent conversation
+    return [...systemMessages, ...recentMessages];
   }
 
   /**
@@ -185,6 +202,24 @@ class WatsonxChat {
     return { success: true, message: 'System prompt updated' };
   }
 
+  /**
+   * Get context window statistics for debugging
+   */
+  getContextStats(): { 
+    totalMessages: number; 
+    contextWindowSize: number; 
+    messagesInContext: number;
+    systemMessages: number;
+  } {
+    const contextMessages = this.getRelevantContext();
+    return {
+      totalMessages: this.messages.length,
+      contextWindowSize: this.config.contextWindowSize,
+      messagesInContext: contextMessages.length,
+      systemMessages: this.messages.filter(msg => msg.role === 'system').length
+    };
+  }
+
   // --- Internal Methods ---
 
   /**
@@ -230,7 +265,8 @@ class WatsonxChat {
 
     for (const message of messages) {
       if (message.role === 'system') {
-        lines.push(message.content);
+        // Format system messages as assistant context, not user context
+        lines.push(`Assistant: ${message.content}`);
       } else if (message.role === 'user') {
         lines.push(`Human: ${message.content}`);
       } else if (message.role === 'assistant') {

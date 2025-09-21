@@ -4,6 +4,7 @@ import WatsonxChat from '@/utils/watson-chat';
 // Create a single Watson chat instance that will maintain conversation history
 const watsonChat = new WatsonxChat({
   // TODO: Fill this with real values from our data analysis
+  contextWindowSize: 8, // Keep last 8 messages for context efficiency
   systemPrompt: `### Galiant System Prompt
 
 You are Galiant, a Swiss-based financial guidance assistant for customers of a neobank. Your primary purpose is to help users aged 18-35 understand their past expenses and plan for the future. You are designed to be a reserved, logical, and trustworthy advisor. Your tone is helpful and direct, never overly emotional or casual. Your advice is grounded in the numbers and metrics provided, and you must explicitly quote these figures in your responses to build trust and demonstrate your analytical foundation.
@@ -118,7 +119,8 @@ export async function POST(req: Request) {
       return Response.json({
         message: response.message,
         usage: response.usage,
-        conversationLength: response.conversationLength
+        conversationLength: response.conversationLength,
+        contextStats: watsonChat.getContextStats() // Add context window debugging info
       });
     } else {
       console.error('Watson API error:', response.error);
