@@ -19,7 +19,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     if (pathname === "/history") return "history";
     if (pathname === "/ai-chat") return "ai-chat";
     if (pathname === "/analytics") return "analytics";
-    if (pathname === "/support") return "support";
+    if (pathname === "/ai-advices") return "ai-advices";
     return "home";
   };
 
@@ -51,8 +51,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       case "analytics":
         router.push("/analytics");
         break;
-      case "support":
-        router.push("/support");
+      case "ai-advices":
+        router.push("/ai-advices");
         break;
       default:
         router.push("/");

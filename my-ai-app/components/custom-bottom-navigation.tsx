@@ -81,15 +81,15 @@ export default function CustomBottomNavigation({
       
       <TouchableOpacity 
         style={styles.navItem}
-        onPress={() => onTabPress('support')}
+        onPress={() => onTabPress('ai-advices')}
         hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconContainer, activeTab === 'support' && styles.activeIconContainer]}>
+        <View style={[styles.iconContainer, activeTab === 'ai-advices' && styles.activeIconContainer]}>
           <Ionicons 
-            name="headset" 
+            name="sparkles" 
             size={24} 
-            color={activeTab === 'support' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
+            color={activeTab === 'ai-advices' ? "#10B981" : "rgba(139, 139, 139, 0.8)"} 
           />
         </View>
       </TouchableOpacity>

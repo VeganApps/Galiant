@@ -41,9 +41,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="support"
+        name="ai-advices"
         options={{
-          title: "Support",
+          title: "AI Advices",
         }}
       />
     </Tabs>

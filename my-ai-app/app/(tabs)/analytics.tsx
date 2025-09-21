@@ -28,92 +28,6 @@ interface CountrySpending {
   color: string;
 }
 
-interface AISuggestion {
-  id: string;
-  title: string;
-  description: string;
-  category: "upselling" | "insight" | "savings" | "navigation";
-  priority: "high" | "medium" | "low";
-  icon: string;
-  color: string;
-  action: string;
-  value?: string;
-}
-
-const aiSuggestions: AISuggestion[] = [
-  {
-    id: "1",
-    title: "Credit Card Recommendation",
-    description:
-      "Save on transaction fees with our premium credit card. Based on your international spending pattern, you could save up to CHF 110 annually.",
-    category: "upselling",
-    priority: "high",
-    icon: "card",
-    color: "#10B981",
-    action: "Apply Now",
-    value: "Save CHF 110/year",
-  },
-  {
-    id: "2",
-    title: "Subscription Monitor",
-    description:
-      "Track all your monthly subscriptions in one place. You have 8 active subscriptions costing CHF 82/month.",
-    category: "insight",
-    priority: "medium",
-    icon: "list",
-    color: "#3B82F6",
-    action: "View Details",
-    value: "CHF 82/month",
-  },
-  {
-    id: "3",
-    title: "Spending Heatmap",
-    description:
-      "Get your personalized spending recap like Spotify Wrapped. See your financial journey across countries and categories.",
-    category: "upselling",
-    priority: "medium",
-    icon: "map",
-    color: "#F59E0B",
-    action: "Generate Report",
-    value: "Free Report",
-  },
-  {
-    id: "4",
-    title: "Smart Savings",
-    description:
-      "Switch from COOP to LIDL for groceries and save CHF 42/month. Based on your current spending pattern.",
-    category: "savings",
-    priority: "high",
-    icon: "trending-down",
-    color: "#8B5CF6",
-    action: "Save Now",
-    value: "Save CHF 42/month",
-  },
-  {
-    id: "5",
-    title: "Navigation Helper",
-    description:
-      "Having trouble finding something? Our AI assistant can guide you through any feature in the app.",
-    category: "navigation",
-    priority: "low",
-    icon: "compass",
-    color: "#EC4899",
-    action: "Ask Galiant",
-    value: "AI Powered",
-  },
-  {
-    id: "6",
-    title: "Credit Line Increase",
-    description:
-      "For your upcoming home renovation, consider increasing your credit line. You qualify for up to CHF 23,000.",
-    category: "upselling",
-    priority: "medium",
-    icon: "trending-up",
-    color: "#EF4444",
-    action: "Apply",
-    value: "Up to CHF 23,000",
-  },
-];
 
 export default function AnalyticsScreen() {
   const { rawTransactions, isDataLoaded } = useTransactions();
@@ -553,144 +467,137 @@ export default function AnalyticsScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* AI Assistant Suggestions */}
+          {/* Spending Trends Analysis */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>AI Assistant Suggestions</Text>
+            <Text style={styles.sectionTitle}>Spending Trends</Text>
             <Text style={styles.sectionSubtitle}>
-              Personalized recommendations powered by Galiant
+              Detailed analysis of your spending patterns over time
             </Text>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.suggestionsCarousel}
-              contentContainerStyle={styles.suggestionsCarouselContent}
-              decelerationRate="fast"
-              snapToInterval={width * 0.85}
-              snapToAlignment="start"
-            >
-              {aiSuggestions.map((suggestion, index) => (
-                <TouchableOpacity
-                  key={suggestion.id}
-                  style={styles.suggestionCard}
-                >
-                  <View style={styles.suggestionHeader}>
-                    <View
-                      style={[
-                        styles.suggestionIcon,
-                        { backgroundColor: `${suggestion.color}15` },
-                      ]}
-                    >
-                      <Ionicons
-                        name={suggestion.icon as any}
-                        size={24}
-                        color={suggestion.color}
-                      />
-                    </View>
-                    <View style={styles.suggestionHeaderInfo}>
-                      <Text style={styles.suggestionTitle}>
-                        {suggestion.title}
-                      </Text>
-                      <View style={styles.suggestionMeta}>
-                        <View
-                          style={[
-                            styles.categoryBadge,
-                            { backgroundColor: `${suggestion.color}20` },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.categoryText,
-                              { color: suggestion.color },
-                            ]}
-                          >
-                            {suggestion.category.toUpperCase()}
-                          </Text>
-                        </View>
-                        <View
-                          style={[
-                            styles.priorityDot,
-                            { backgroundColor: suggestion.color },
-                          ]}
-                        />
-                      </View>
-                    </View>
-                    {suggestion.value && (
-                      <View
-                        style={[
-                          styles.valueBadge,
-                          { backgroundColor: suggestion.color },
-                        ]}
-                      >
-                        <Text style={styles.valueText}>{suggestion.value}</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <Text style={styles.suggestionDescription}>
-                    {suggestion.description}
-                  </Text>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.actionButton,
-                      { borderColor: suggestion.color },
-                    ]}
-                    onPress={() => {
-                      // Handle suggestion action
-                      console.log("Action pressed for:", suggestion.title);
-                    }}
+            
+            <View style={styles.trendsAnalysisContainer}>
+              <View style={styles.analysisCard}>
+                <View style={styles.analysisIconContainer}>
+                  <LinearGradient
+                    colors={["#EF4444", "#DC2626"]}
+                    style={styles.analysisIcon}
                   >
-                    <Text
-                      style={[
-                        styles.actionButtonText,
-                        { color: suggestion.color },
-                      ]}
-                    >
-                      {suggestion.action}
-                    </Text>
-                    <Ionicons
-                      name="arrow-forward"
-                      size={16}
-                      color={suggestion.color}
-                    />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* AI Insights Summary */}
-            <View style={styles.insightsSummary}>
-              <View style={styles.insightsHeader}>
-                <LinearGradient
-                  colors={["#10B981", "#059669"]}
-                  style={styles.insightsIcon}
-                >
-                  <Ionicons name="bulb" size={24} color="white" />
-                </LinearGradient>
-                <View style={styles.insightsContent}>
-                  <Text style={styles.insightsTitle}>Smart Insights</Text>
-                  <Text style={styles.insightsSubtitle}>
-                    Based on your spending patterns, you could save up to CHF
-                    2,200 annually
-                  </Text>
+                    <Ionicons name="trending-up" size={20} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.analysisContent}>
+                  <Text style={styles.analysisTitle}>Highest Spending Day</Text>
+                  <Text style={styles.analysisValue}>Friday</Text>
+                  <Text style={styles.analysisDescription}>Average CHF 180/day</Text>
                 </View>
               </View>
 
-              <View style={styles.insightsStats}>
-                <View style={styles.insightStat}>
-                  <Text style={styles.insightStatValue}>CHF 2,200</Text>
-                  <Text style={styles.insightStatLabel}>Annual Savings</Text>
+              <View style={styles.analysisCard}>
+                <View style={styles.analysisIconContainer}>
+                  <LinearGradient
+                    colors={["#10B981", "#059669"]}
+                    style={styles.analysisIcon}
+                  >
+                    <Ionicons name="trending-down" size={20} color="white" />
+                  </LinearGradient>
                 </View>
-                <View style={styles.insightStat}>
-                  <Text style={styles.insightStatValue}>12</Text>
-                  <Text style={styles.insightStatLabel}>Recommendations</Text>
-                </View>
-                <View style={styles.insightStat}>
-                  <Text style={styles.insightStatValue}>85%</Text>
-                  <Text style={styles.insightStatLabel}>Accuracy</Text>
+                <View style={styles.analysisContent}>
+                  <Text style={styles.analysisTitle}>Lowest Spending Day</Text>
+                  <Text style={styles.analysisValue}>Tuesday</Text>
+                  <Text style={styles.analysisDescription}>Average CHF 95/day</Text>
                 </View>
               </View>
+            </View>
+
+            <View style={styles.trendsAnalysisContainer}>
+              <View style={styles.analysisCard}>
+                <View style={styles.analysisIconContainer}>
+                  <LinearGradient
+                    colors={["#3B82F6", "#2563EB"]}
+                    style={styles.analysisIcon}
+                  >
+                    <Ionicons name="time" size={20} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.analysisContent}>
+                  <Text style={styles.analysisTitle}>Peak Spending Time</Text>
+                  <Text style={styles.analysisValue}>7-9 PM</Text>
+                  <Text style={styles.analysisDescription}>Evening activities</Text>
+                </View>
+              </View>
+
+              <View style={styles.analysisCard}>
+                <View style={styles.analysisIconContainer}>
+                  <LinearGradient
+                    colors={["#F59E0B", "#D97706"]}
+                    style={styles.analysisIcon}
+                  >
+                    <Ionicons name="location" size={20} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.analysisContent}>
+                  <Text style={styles.analysisTitle}>Most Frequent Location</Text>
+                  <Text style={styles.analysisValue}>Zurich</Text>
+                  <Text style={styles.analysisDescription}>78% of transactions</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Export & Reports */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reports & Export</Text>
+            <Text style={styles.sectionSubtitle}>
+              Download your financial data and generate reports
+            </Text>
+            
+            <View style={styles.reportsContainer}>
+              <TouchableOpacity style={styles.reportCard}>
+                <View style={styles.reportIcon}>
+                  <LinearGradient
+                    colors={["#10B981", "#059669"]}
+                    style={styles.reportIconGradient}
+                  >
+                    <Ionicons name="download" size={24} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.reportContent}>
+                  <Text style={styles.reportTitle}>Export to CSV</Text>
+                  <Text style={styles.reportDescription}>Download all transaction data</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.reportCard}>
+                <View style={styles.reportIcon}>
+                  <LinearGradient
+                    colors={["#3B82F6", "#2563EB"]}
+                    style={styles.reportIconGradient}
+                  >
+                    <Ionicons name="document-text" size={24} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.reportContent}>
+                  <Text style={styles.reportTitle}>Monthly Report</Text>
+                  <Text style={styles.reportDescription}>Generate detailed monthly analysis</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.reportCard}>
+                <View style={styles.reportIcon}>
+                  <LinearGradient
+                    colors={["#F59E0B", "#D97706"]}
+                    style={styles.reportIconGradient}
+                  >
+                    <Ionicons name="pie-chart" size={24} color="white" />
+                  </LinearGradient>
+                </View>
+                <View style={styles.reportContent}>
+                  <Text style={styles.reportTitle}>Visual Charts</Text>
+                  <Text style={styles.reportDescription}>Create spending visualization</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              </TouchableOpacity>
             </View>
           </View>
         </Animated.ScrollView>
@@ -732,6 +639,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
+    paddingTop: 70,
     paddingVertical: 20,
   },
   title: {
@@ -1162,153 +1070,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#6B7280",
   },
-  suggestionsCarousel: {
-    marginBottom: 24,
-  },
-  suggestionsCarouselContent: {
-    paddingRight: 24,
-  },
-  suggestionCard: {
-    width: width * 0.8,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    marginRight: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  suggestionHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  suggestionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  suggestionHeaderInfo: {
-    flex: 1,
-  },
-  suggestionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  suggestionMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  categoryBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  categoryText: {
-    fontSize: 10,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-  },
-  priorityDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  valueBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  valueText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "white",
-  },
-  suggestionDescription: {
-    fontSize: 15,
-    color: "#6B7280",
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    backgroundColor: "transparent",
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginRight: 6,
-  },
-  insightsSummary: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  insightsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  insightsIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  insightsContent: {
-    flex: 1,
-  },
-  insightsTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 4,
-  },
-  insightsSubtitle: {
-    fontSize: 14,
-    color: "#6B7280",
-    lineHeight: 20,
-  },
-  insightsStats: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  insightStat: {
-    alignItems: "center",
-  },
-  insightStatValue: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#10B981",
-    marginBottom: 4,
-  },
-  insightStatLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
   seeAllButton: {
     marginTop: 20,
   },
@@ -1378,5 +1139,90 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     fontWeight: "700",
     marginRight: 6,
+  },
+  trendsAnalysisContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  analysisCard: {
+    flex: 1,
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  analysisIconContainer: {
+    marginBottom: 12,
+  },
+  analysisIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  analysisContent: {
+    flex: 1,
+  },
+  analysisTitle: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+  analysisValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: 4,
+  },
+  analysisDescription: {
+    fontSize: 11,
+    color: "#9CA3AF",
+  },
+  reportsContainer: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  reportCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  reportIcon: {
+    marginRight: 16,
+  },
+  reportIconGradient: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  reportContent: {
+    flex: 1,
+  },
+  reportTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 4,
+  },
+  reportDescription: {
+    fontSize: 14,
+    color: "#6B7280",
   },
 });
